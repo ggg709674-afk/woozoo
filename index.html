@@ -501,8 +501,8 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>접수일</th><th>거래처</th><th>고객명</th><th>연락처</th><th>모델</th><th>색상/용량</th><th>요청사항</th><th>상태</th><th>관리</th></tr></thead>
-            <tbody id="ord-tbody"><tr><td colspan="8" class="loading">로딩중...</td></tr></tbody>
+            <thead><tr><th>접수일</th><th>업체명</th><th>고객명</th><th>택배연락처</th><th>택배주소</th><th>모델명</th><th>색상</th><th>유심여부</th><th>배송요청사항</th><th>상태</th><th>관리</th></tr></thead>
+            <tbody id="ord-tbody"><tr><td colspan="11" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -929,14 +929,16 @@ async function loadOrders() {
   const { data } = await q;
   const filtered = data?.filter(o => !search || o.customer_name?.toLowerCase().includes(search) || o.model?.toLowerCase().includes(search)) || [];
   const tbody = document.getElementById('ord-tbody');
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty">주문 없음</td></tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty">주문 없음</td></tr>'; return; }
   tbody.innerHTML = filtered.map(o => `<tr>
-    <td style="font-size:12px;color:var(--text-sub)">${fmtDate(o.created_at)}</td>
+    <td style="font-size:12px;color:var(--text-sub);white-space:nowrap">${fmtDate(o.created_at)}</td>
     <td style="font-weight:600">${o.partners?.name || '-'}</td>
     <td>${o.customer_name || '-'}</td>
     <td style="font-size:12px;color:var(--text-sub)">${o.customer_phone || '-'}</td>
+    <td style="font-size:12px;color:var(--text-sub);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${[o.address, o.address_detail].filter(Boolean).join(' ') || '-'}</td>
     <td style="font-weight:600">${o.model || '-'}</td>
-    <td style="font-size:12px;color:var(--text-sub)">${o.color || '-'} / ${o.storage || '-'}</td>
+    <td style="font-size:12px;color:var(--text-sub)">${o.color || '-'}</td>
+    <td style="font-size:12px">${o.usim || '-'}</td>
     <td style="font-size:12px;color:var(--text-sub);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.memo || '-'}</td>
     <td>${statusBadge(o.status)}</td>
     <td><button class="btn btn-outline btn-sm" onclick="openOrderModal('${o.id}')">처리</button></td>
