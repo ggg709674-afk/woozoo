@@ -1,0 +1,4 @@
+cd C:\woozoo
+git add .
+git commit -m "update"
+git push

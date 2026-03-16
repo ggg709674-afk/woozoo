@@ -316,7 +316,7 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
         <div class="page-title">대시보드</div>
         <div class="page-sub">우주커넥트 재고 현황 요약</div>
       </div>
-      <div class="summary-grid">
+      <div class="summary-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="summary-card">
           <div class="summary-icon blue">📦</div>
           <div class="summary-label">전체 재고</div>
@@ -336,6 +336,22 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
           <div class="summary-icon red">⚡</div>
           <div class="summary-label">미처리 주문</div>
           <div class="summary-value red" id="s-pending">-</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon" style="background:var(--purple-bg)">💰</div>
+          <div class="summary-label">총 재고금액</div>
+          <div class="summary-value" style="color:var(--purple);font-size:16px" id="s-total-price">-</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">모델별 재고 현황</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>모델</th><th>단가</th><th>재고 수량</th><th>재고금액</th></tr></thead>
+            <tbody id="model-stock-body"><tr><td colspan="4" class="loading">로딩중...</td></tr></tbody>
+          </table>
         </div>
       </div>
       <div class="card">
@@ -527,7 +543,7 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
                 <th>모델코드</th>
                 <th>색상1</th><th>색상2</th><th>색상3</th>
                 <th>색상4</th><th>색상5</th><th>색상6</th>
-                <th>상태</th><th>관리</th>
+                <th>단가</th><th>상태</th><th>관리</th>
               </tr>
             </thead>
             <tbody id="model-tbody"><tr><td colspan="9" class="loading">로딩중...</td></tr></tbody>
@@ -570,6 +586,10 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
     <div class="modal-field">
       <label class="modal-label">모델코드 *</label>
       <input class="modal-input" id="m-code" placeholder="예) S942_256" style="font-family:monospace;font-weight:700"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">단가 (원)</label>
+      <input class="modal-input" id="m-price" type="number" placeholder="예) 850000" style="font-weight:700"/>
     </div>
     <div class="modal-label" style="margin-bottom:8px">색상 (최대 6개, 빈칸 무시)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
@@ -763,7 +783,7 @@ function fmtDate(d) {
 
 // ─── 대시보드 ───
 async function loadDashboard() {
-  const { data: inv } = await sb.from('inventory').select('status');
+  const { data: inv } = await sb.from('inventory').select('status, model');
   document.getElementById('s-total').textContent = inv?.filter(i => i.status === '재고').length || 0;
   document.getElementById('s-out').textContent = inv?.filter(i => i.status === '출고중').length || 0;
   const today = new Date(Date.now() + 9*60*60*1000).toISOString().split('T')[0];
@@ -771,6 +791,32 @@ async function loadDashboard() {
   document.getElementById('s-in-today').textContent = todayIn?.length || 0;
   const { data: pending } = await sb.from('orders').select('id').eq('status', '접수대기');
   document.getElementById('s-pending').textContent = pending?.length || 0;
+
+  // 모델별 단가 가져와서 재고금액 계산
+  const { data: models } = await sb.from('models').select('code, price');
+  const priceMap = {};
+  models?.forEach(m => { priceMap[m.code] = m.price || 0; });
+
+  const stockItems = inv?.filter(i => i.status === '재고') || [];
+  const modelCount = {};
+  stockItems.forEach(i => { modelCount[i.model] = (modelCount[i.model] || 0) + 1; });
+
+  let totalPrice = 0;
+  const modelRows = Object.entries(modelCount).sort((a,b) => b[1]-a[1]).map(([model, cnt]) => {
+    const price = priceMap[model] || 0;
+    const amount = price * cnt;
+    totalPrice += amount;
+    return `<tr>
+      <td style="font-family:monospace;font-weight:700;color:var(--primary)">${model}</td>
+      <td style="color:var(--text-sub)">${price ? price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">미입력</span>'}</td>
+      <td style="font-weight:700">${cnt}대</td>
+      <td style="font-weight:700;color:var(--purple)">${price ? amount.toLocaleString()+'원' : '-'}</td>
+    </tr>`;
+  });
+  document.getElementById('s-total-price').textContent = totalPrice ? totalPrice.toLocaleString()+'원' : '-';
+  const msBody = document.getElementById('model-stock-body');
+  msBody.innerHTML = modelRows.length ? modelRows.join('') : '<tr><td colspan="4" class="empty">재고 없음</td></tr>';
+
   const { data: orders } = await sb.from('orders').select('*, partners(name)').order('created_at', {ascending: false}).limit(10);
   const tbody = document.getElementById('recent-orders-body');
   if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">주문 없음</td></tr>'; return; }
@@ -943,9 +989,10 @@ async function loadModels() {
       <td style="font-family:monospace;font-weight:700;color:var(--primary)">${m.code}</td>
       <td style="font-size:12px">${m.color1||'-'}</td><td style="font-size:12px">${m.color2||'-'}</td><td style="font-size:12px">${m.color3||'-'}</td>
       <td style="font-size:12px">${m.color4||'-'}</td><td style="font-size:12px">${m.color5||'-'}</td><td style="font-size:12px">${m.color6||'-'}</td>
+      <td style="font-weight:700;color:var(--text)">${m.price ? m.price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">미입력</span>'}</td>
       <td>${active}</td>
       <td style="display:flex;gap:6px">
-        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}')">수정</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}',${m.price||0})">수정</button>
         <button class="btn btn-danger btn-sm" onclick="toggleModel('${m.id}',${m.is_active})">${m.is_active?'비활성화':'활성화'}</button>
       </td>
     </tr>`;
@@ -955,25 +1002,27 @@ async function loadModels() {
 function openAddModel() {
   editModelId = null;
   document.getElementById('model-modal-title').textContent = '모델 추가';
-  ['m-code','m-c1','m-c2','m-c3','m-c4','m-c5','m-c6'].forEach(id => document.getElementById(id).value = '');
+  ['m-code','m-c1','m-c2','m-c3','m-c4','m-c5','m-c6','m-price'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('m-code').readOnly = false;
   document.getElementById('model-modal').classList.add('open');
   setTimeout(() => document.getElementById('m-code').focus(), 100);
 }
 
-function openEditModel(id, code, c1, c2, c3, c4, c5, c6) {
+function openEditModel(id, code, c1, c2, c3, c4, c5, c6, price) {
   editModelId = id;
   document.getElementById('model-modal-title').textContent = '모델 수정';
   document.getElementById('m-code').value = code;
   document.getElementById('m-code').readOnly = true;
   ['m-c1','m-c2','m-c3','m-c4','m-c5','m-c6'].forEach((id,i) => document.getElementById(id).value = [c1,c2,c3,c4,c5,c6][i]);
+  document.getElementById('m-price').value = price || '';
   document.getElementById('model-modal').classList.add('open');
 }
 
 async function saveModel() {
   const code = document.getElementById('m-code').value.trim().toUpperCase();
   if (!code) { toast('모델코드를 입력해주세요'); return; }
-  const payload = { code, color1:document.getElementById('m-c1').value.trim()||null, color2:document.getElementById('m-c2').value.trim()||null, color3:document.getElementById('m-c3').value.trim()||null, color4:document.getElementById('m-c4').value.trim()||null, color5:document.getElementById('m-c5').value.trim()||null, color6:document.getElementById('m-c6').value.trim()||null };
+  const price = parseInt(document.getElementById('m-price').value) || 0;
+  const payload = { code, price, color1:document.getElementById('m-c1').value.trim()||null, color2:document.getElementById('m-c2').value.trim()||null, color3:document.getElementById('m-c3').value.trim()||null, color4:document.getElementById('m-c4').value.trim()||null, color5:document.getElementById('m-c5').value.trim()||null, color6:document.getElementById('m-c6').value.trim()||null };
   let error;
   if (editModelId) { ({error} = await sb.from('models').update(payload).eq('id', editModelId)); }
   else { ({error} = await sb.from('models').insert(payload)); }
