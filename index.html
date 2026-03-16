@@ -766,7 +766,7 @@ async function loadDashboard() {
   const { data: inv } = await sb.from('inventory').select('status');
   document.getElementById('s-total').textContent = inv?.filter(i => i.status === '재고').length || 0;
   document.getElementById('s-out').textContent = inv?.filter(i => i.status === '출고중').length || 0;
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date(Date.now() + 9*60*60*1000).toISOString().split('T')[0];
   const { data: todayIn } = await sb.from('stock_in').select('id').gte('created_at', today);
   document.getElementById('s-in-today').textContent = todayIn?.length || 0;
   const { data: pending } = await sb.from('orders').select('id').eq('status', '접수대기');
