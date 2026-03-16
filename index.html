@@ -818,25 +818,23 @@ async function loadDashboard() {
   });
   document.getElementById('s-total-price').textContent = totalPrice ? totalPrice.toLocaleString()+'원' : '-';
   const msBody = document.getElementById('model-stock-body');
-  if (!modelRows.length) { msBody.innerHTML = '<tr><td colspan="4" class="empty">재고 없음</td></tr>'; }
-  else {
+  const toggleBtn = document.getElementById('model-stock-toggle');
+  if (!modelRows.length) {
+    msBody.innerHTML = '<tr><td colspan="4" class="empty">재고 없음</td></tr>';
+    toggleBtn.style.display = 'none';
+  } else {
     const LIMIT = 10;
-    const visible = modelRows.slice(0, LIMIT).join('');
-    const hidden = modelRows.slice(LIMIT).join('');
-    msBody.innerHTML = visible + (hidden ? `<tr id="model-stock-more" style="display:none">${''}</tr>` : '');
-    // hidden rows 별도 삽입
-    if (hidden) {
-      const moreEl = document.getElementById('model-stock-more');
-      moreEl.outerHTML = `<tbody id="model-stock-hidden" style="display:none">${hidden}</tbody>`;
-    }
-    const toggleBtn = document.getElementById('model-stock-toggle');
-    if (hidden) {
+    // 모든 행 삽입, 10개 초과분은 숨김 클래스
+    msBody.innerHTML = modelRows.map((row, i) =>
+      i < LIMIT ? row : row.replace('<tr>', '<tr class="model-stock-extra" style="display:none">')
+    ).join('');
+    if (modelRows.length > LIMIT) {
       toggleBtn.style.display = 'block';
       toggleBtn.textContent = `▼ 더보기 (${modelRows.length - LIMIT}개)`;
       toggleBtn.onclick = () => {
-        const h = document.getElementById('model-stock-hidden');
-        const isHidden = h.style.display === 'none';
-        h.style.display = isHidden ? '' : 'none';
+        const extras = document.querySelectorAll('.model-stock-extra');
+        const isHidden = extras[0].style.display === 'none';
+        extras.forEach(r => r.style.display = isHidden ? '' : 'none');
         toggleBtn.textContent = isHidden ? '▲ 접기' : `▼ 더보기 (${modelRows.length - LIMIT}개)`;
       };
     } else {
