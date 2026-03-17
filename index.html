@@ -1093,10 +1093,14 @@ async function loadDashboard() {
   // 모델별 바 차트
   const barColors = ['var(--primary)', 'var(--purple)', 'var(--green)', 'var(--orange)', 'var(--red)'];
   const barBody = document.getElementById('model-bar-body');
+  const toggleBtn = document.getElementById('model-stock-toggle');
   if (barBody) {
     if (!sortedModels.length) { barBody.innerHTML = '<div class="empty">재고 없음</div>'; }
     else {
-      barBody.innerHTML = sortedModels.slice(0, 8).map(([model, cnt], i) => `
+      const LIMIT = 8;
+      const visible = sortedModels.slice(0, LIMIT);
+      const hidden = sortedModels.slice(LIMIT);
+      const makeBar = ([model, cnt], i) => `
         <div style="margin-bottom:11px">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px">
             <span style="font-size:12px;font-weight:700;color:var(--text);font-family:monospace">${model}</span>
@@ -1105,7 +1109,21 @@ async function loadDashboard() {
           <div style="background:var(--border-light);border-radius:100px;height:5px">
             <div style="height:5px;border-radius:100px;background:${barColors[i%5]};width:${Math.round(cnt/maxCnt*100)}%;transition:width 0.8s ease"></div>
           </div>
-        </div>`).join('');
+        </div>`;
+      barBody.innerHTML = visible.map(makeBar).join('') +
+        (hidden.length ? `<div id="bar-hidden" style="display:none">${hidden.map((m,i) => makeBar(m, i+LIMIT)).join('')}</div>` : '');
+      if (hidden.length) {
+        toggleBtn.style.display = 'block';
+        toggleBtn.textContent = `▼ 더보기 (${hidden.length}개)`;
+        toggleBtn.onclick = () => {
+          const h = document.getElementById('bar-hidden');
+          const isHidden = h.style.display === 'none';
+          h.style.display = isHidden ? '' : 'none';
+          toggleBtn.textContent = isHidden ? '▲ 접기' : `▼ 더보기 (${hidden.length}개)`;
+        };
+      } else {
+        toggleBtn.style.display = 'none';
+      }
     }
   }
 
@@ -1123,7 +1141,6 @@ async function loadDashboard() {
   });
   document.getElementById('s-total-price').textContent = totalPrice ? totalPrice.toLocaleString()+'원' : '-';
   const msBody = document.getElementById('model-stock-body');
-  const toggleBtn = document.getElementById('model-stock-toggle');
   if (!modelRows.length) {
     msBody.innerHTML = '<tr><td colspan="4" class="empty">재고 없음</td></tr>';
     toggleBtn.style.display = 'none';
