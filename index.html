@@ -763,15 +763,15 @@ tr.drag-over { border-top:2px solid var(--primary); }
       </div>
       <div class="card">
         <div class="table-wrap">
-          <table>
+          <table style="table-layout:fixed;width:100%">
             <thead>
               <tr>
-                <th style="width:40px">#</th>
-                <th>요금제명</th>
-                <th>기본요금</th>
-                <th>요금제군</th>
-                <th>상태</th>
-                <th style="width:100px">관리</th>
+                <th style="width:40px;text-align:center">#</th>
+                <th style="width:40%">요금제명</th>
+                <th style="width:120px;text-align:right">기본요금</th>
+                <th style="width:120px;text-align:center">요금제군</th>
+                <th style="width:100px;text-align:center">상태</th>
+                <th style="width:120px;text-align:center">관리</th>
               </tr>
             </thead>
             <tbody id="plan-tbody"><tr><td colspan="6" class="loading">로딩중...</td></tr></tbody>
@@ -2159,19 +2159,19 @@ function renderPlansTable() {
   if (!plansCache.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 요금제가 없어요</td></tr>'; return; }
   tbody.innerHTML = plansCache.map((p, i) => `
     <tr>
-      <td style="color:var(--text-hint);font-size:12px;text-align:center">${i+1}</td>
+      <td style="text-align:center;color:var(--text-hint);font-size:12px">${i+1}</td>
       <td style="font-weight:600">${p.name}</td>
-      <td>${p.monthly_fee ? p.monthly_fee.toLocaleString() + '원' : '-'}</td>
-      <td><span class="badge" style="background:var(--purple-bg);color:var(--purple)">${p.plan_group || '-'}</span></td>
-      <td>
+      <td style="text-align:right">${p.monthly_fee ? p.monthly_fee.toLocaleString() + '원' : '-'}</td>
+      <td style="text-align:center"><span class="badge" style="background:var(--purple-bg);color:var(--purple)">${p.plan_group || '-'}</span></td>
+      <td style="text-align:center">
         <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
           <input type="checkbox" ${p.is_active ? 'checked' : ''} onchange="togglePlan('${p.id}', this.checked)"
             style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)"/>
           <span style="color:${p.is_active ? 'var(--green)' : 'var(--text-hint)'}">${p.is_active ? '활성' : '비활성'}</span>
         </label>
       </td>
-      <td style="white-space:nowrap">
-        <div style="display:flex;gap:6px">
+      <td style="text-align:center;white-space:nowrap">
+        <div style="display:inline-flex;gap:6px">
           <button class="btn btn-outline btn-sm" onclick="openEditPlan(${i})">수정</button>
           <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">삭제</button>
         </div>
