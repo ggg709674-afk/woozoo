@@ -539,17 +539,17 @@ tr.drag-over { border-top:2px solid var(--primary); }
             <div class="card-title">재고 현황표 <span class="card-title-sub">드래그로 순서 변경</span></div>
           </div>
           <div class="table-wrap">
-            <table id="inv-summary-table">
+            <table id="inv-summary-table" style="width:auto;min-width:600px">
               <thead>
                 <tr>
-                  <th style="width:32px"></th>
-                  <th>모델</th>
-                  <th>색상</th>
-                  <th style="color:var(--primary)">가용재고</th>
-                  <th style="color:var(--text-hint)">숨김</th>
-                  <th style="color:var(--orange)">출고중</th>
-                  <th style="color:var(--green)">개통</th>
-                  <th>전체수량</th>
+                  <th style="width:28px"></th>
+                  <th style="min-width:120px;text-align:left">모델</th>
+                  <th style="min-width:80px;text-align:left">색상</th>
+                  <th style="width:80px;text-align:center;color:var(--primary)">가용재고</th>
+                  <th style="width:60px;text-align:center;color:var(--text-hint)">숨김</th>
+                  <th style="width:60px;text-align:center;color:var(--orange)">출고중</th>
+                  <th style="width:60px;text-align:center;color:var(--green)">개통</th>
+                  <th style="width:70px;text-align:center">전체수량</th>
                 </tr>
               </thead>
               <tbody id="inv-summary-tbody"><tr><td colspan="8" class="loading">로딩중...</td></tr></tbody>
