@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>우주커넥트 관리자</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -67,7 +68,8 @@ body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--b
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 13.5px; font-weight: 500; color: var(--text-sub); cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; margin-bottom: 2px; }
 .nav-item:hover { background: var(--border-light); color: var(--text); }
 .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
-.nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-icon { font-size:15px; width:20px; text-align:center; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.nav-icon svg { width:15px; height:15px; }
 .sidebar-bottom { padding: 14px 16px; border-top: 1px solid var(--border-light); }
 .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .sidebar-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
@@ -304,18 +306,18 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
     </div>
     <nav class="nav">
       <div class="nav-section">메인</div>
-      <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> 대시보드</div>
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"><i data-lucide="layout-dashboard"></i></span> 대시보드</div>
       <div class="nav-section">재고</div>
-      <div class="nav-item" onclick="showPage('stock-in')"><span class="nav-icon">📦</span> 입고 등록</div>
-      <div class="nav-item" onclick="showPage('inventory')"><span class="nav-icon">📋</span> 재고 현황</div>
+      <div class="nav-item" onclick="showPage('stock-in')"><span class="nav-icon"><i data-lucide="package-plus"></i></span> 입고 등록</div>
+      <div class="nav-item" onclick="showPage('inventory')"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> 재고 현황</div>
       <div class="nav-section">운영</div>
-      <div class="nav-item" onclick="showPage('orders')"><span class="nav-icon">🔄</span> 주문 처리</div>
-      <div class="nav-item" onclick="showPage('partners')"><span class="nav-icon">🏢</span> 거래처 관리</div>
+      <div class="nav-item" onclick="showPage('orders')"><span class="nav-icon"><i data-lucide="refresh-cw"></i></span> 주문 처리</div>
+      <div class="nav-item" onclick="showPage('partners')"><span class="nav-icon"><i data-lucide="building-2"></i></span> 거래처 관리</div>
       <div class="nav-section">정산</div>
-      <div class="nav-item" onclick="showPage('settlement')"><span class="nav-icon">💰</span> 정산 관리</div>
+      <div class="nav-item" onclick="showPage('settlement')"><span class="nav-icon"><i data-lucide="calculator"></i></span> 정산 관리</div>
       <div class="nav-section">설정</div>
-      <div class="nav-item" onclick="showPage('models')"><span class="nav-icon">📱</span> 모델 관리</div>
-      <div class="nav-item" onclick="showPage('members')"><span class="nav-icon">👥</span> 회원 관리</div>
+      <div class="nav-item" onclick="showPage('models')"><span class="nav-icon"><i data-lucide="smartphone"></i></span> 모델 관리</div>
+      <div class="nav-item" onclick="showPage('members')"><span class="nav-icon"><i data-lucide="users"></i></span> 회원 관리</div>
     </nav>
     <div class="sidebar-bottom">
       <div class="sidebar-user">
@@ -326,7 +328,7 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
         </div>
       </div>
       <button class="logout-btn" onclick="doLogout()">
-        <span>↩</span> 로그아웃
+        <i data-lucide="log-out" style="width:14px;height:14px"></i> 로그아웃
       </button>
     </div>
   </div>
@@ -341,27 +343,27 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
       </div>
       <div class="summary-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="summary-card">
-          <div class="summary-icon blue">📦</div>
+          <div class="summary-icon blue"><i data-lucide="package" style="width:16px;height:16px;stroke:var(--primary)"></i></div>
           <div class="summary-label">전체 재고</div>
           <div class="summary-value blue" id="s-total">-</div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon orange">🚚</div>
+          <div class="summary-icon orange"><i data-lucide="truck" style="width:16px;height:16px;stroke:var(--orange)"></i></div>
           <div class="summary-label">출고중</div>
           <div class="summary-value orange" id="s-out">-</div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon green">✅</div>
+          <div class="summary-icon green"><i data-lucide="package-check" style="width:16px;height:16px;stroke:var(--green)"></i></div>
           <div class="summary-label">오늘 입고</div>
           <div class="summary-value green" id="s-in-today">-</div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon red">⚡</div>
+          <div class="summary-icon red"><i data-lucide="bell-ring" style="width:16px;height:16px;stroke:var(--red)"></i></div>
           <div class="summary-label">미처리 주문</div>
           <div class="summary-value red" id="s-pending">-</div>
         </div>
         <div class="summary-card">
-          <div class="summary-icon" style="background:var(--purple-bg)">💰</div>
+          <div class="summary-icon" style="background:var(--purple-bg)"><i data-lucide="circle-dollar-sign" style="width:16px;height:16px;stroke:var(--purple)"></i></div>
           <div class="summary-label">총 재고금액</div>
           <div class="summary-value" style="color:var(--purple);font-size:16px" id="s-total-price">-</div>
         </div>
@@ -795,6 +797,7 @@ function enterApp(email) {
   document.getElementById('sidebar-name').textContent = name;
   document.getElementById('sidebar-role').textContent = '관리자';
   document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpperCase();
+  setTimeout(() => lucide.createIcons(), 50);
   loadDashboard();
 }
 
@@ -837,6 +840,10 @@ sb.auth.onAuthStateChange((event, session) => {
     enterApp(session.user.email);
   }
 });
+
+// Lucide 아이콘 초기화
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+function refreshIcons() { lucide.createIcons(); }
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1336,7 +1343,53 @@ async function siSaveAll() {
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ─── 모델 검색 드롭다운 ───
+// ─── 판매처 검색 드롭다운 ───
+let partnerDdTarget = null;
+const partnerDdEl = document.createElement('div');
+partnerDdEl.className = 'model-dd-popup';
+partnerDdEl.innerHTML = `<input class="model-dd-search" id="partner-dd-search" placeholder="검색..." oninput="filterPartnerDd(this.value)" onkeydown="partnerDdKey(event)"/><div class="model-dd-list" id="partner-dd-list"></div>`;
+document.body.appendChild(partnerDdEl);
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.model-dd-popup') && !e.target.classList.contains('stl-input')) modelDdEl.classList.remove('open');
+});
+
+function openPartnerDd(i, input) {
+  partnerDdTarget = { i, input };
+  const rect = input.getBoundingClientRect();
+  partnerDdEl.style.top = (rect.bottom + 2) + 'px';
+  partnerDdEl.style.left = rect.left + 'px';
+  partnerDdEl.classList.add('open');
+  const searchEl = document.getElementById('partner-dd-search');
+  searchEl.value = '';
+  filterPartnerDd('');
+  setTimeout(() => searchEl.focus(), 50);
+}
+
+function filterPartnerDd(q) {
+  const list = document.getElementById('partner-dd-list');
+  const filtered = settlPartners.filter(p => !q || p.name.toLowerCase().includes(q.toLowerCase()));
+  list.innerHTML = filtered.map(p => `<div class="model-dd-item" onclick="selectPartnerDd('${p.name}')">${p.name}</div>`).join('');
+}
+
+function selectPartnerDd(name) {
+  if (!partnerDdTarget) return;
+  partnerDdTarget.input.value = name;
+  settlUpdate(partnerDdTarget.i, 'seller', name);
+  partnerDdEl.classList.remove('open');
+}
+
+function partnerDdKey(e) {
+  const items = document.querySelectorAll('#partner-dd-list .model-dd-item');
+  const hl = document.querySelector('#partner-dd-list .model-dd-item.hl');
+  let idx = Array.from(items).indexOf(hl);
+  if (e.key === 'ArrowDown') { idx = Math.min(idx+1, items.length-1); }
+  else if (e.key === 'ArrowUp') { idx = Math.max(idx-1, 0); }
+  else if (e.key === 'Enter' && hl) { selectPartnerDd(hl.textContent); return; }
+  else if (e.key === 'Escape') { partnerDdEl.classList.remove('open'); return; }
+  items.forEach((it,i) => it.classList.toggle('hl', i===idx));
+  if (items[idx]) items[idx].scrollIntoView({block:'nearest'});
+}
 let modelDdTarget = null;
 const modelDdEl = document.createElement('div');
 modelDdEl.className = 'model-dd-popup';
@@ -1443,12 +1496,7 @@ function renderSettlTable() {
           <option ${r.policy_type==='특별정책'?'selected':''}>특별정책</option>
         </select>
       </td>
-      <td class="stl-td">
-        <select class="stl-select" onchange="settlUpdate(${i},'seller',this.value)">
-          <option value=""></option>
-          ${settlPartners.map(p=>`<option ${r.seller===p.name?'selected':''}>${p.name}</option>`).join('')}
-        </select>
-      </td>
+      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" readonly onclick="openPartnerDd(${i},this)" style="cursor:pointer"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'act_type',this.value)">
           <option value=""></option>
