@@ -1378,9 +1378,9 @@ function renderSettlTable() {
       <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" placeholder="-" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
       <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.tgate||''}" placeholder="-" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.policy||''}" oninput="settlUpdate(${i},'policy',this.value)"/></td>
-      <td class="stl-td" style="position:relative">
-        <input class="stl-input" type="date" value="${r.act_date||''}" style="opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer" onchange="settlUpdate(${i},'act_date',this.value);this.previousElementSibling.textContent=this.value?new Date(this.value+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/')replace('일',''):''"/>
-        <span style="pointer-events:none;padding:0 7px;font-size:12px">${r.act_date ? new Date(r.act_date+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일','') : ''}</span>
+      <td class="stl-td" onclick="this.querySelector('input[type=date]').showPicker()" style="cursor:pointer">
+        <span style="padding:0 7px;font-size:12px;pointer-events:none">${r.act_date ? new Date(r.act_date+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일','') : ''}</span>
+        <input type="date" value="${r.act_date||''}" style="width:0;height:0;opacity:0;position:absolute;pointer-events:none" onchange="settlUpdate(${i},'act_date',this.value);this.closest('td').querySelector('span').textContent=this.value?new Date(this.value+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일',''):''"/>
       </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'policy_type',this.value)">
