@@ -1132,6 +1132,8 @@ function initDragSort() {
     row.addEventListener('drop', e => { e.preventDefault(); if (dragSrc !== row) { const rows = [...tbody.querySelectorAll('tr')]; const si = rows.indexOf(dragSrc); const di = rows.indexOf(row); if (si < di) row.after(dragSrc); else row.before(dragSrc); } });
   });
 }
+
+function invResetFilter() {
   ['inv-date-from','inv-date-to','inv-filter-status','inv-search'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   document.getElementById('isc-all').classList.add('active');
