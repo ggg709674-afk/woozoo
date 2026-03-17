@@ -1035,8 +1035,16 @@ function enterApp(email) {
   document.getElementById('sidebar-name').textContent = name;
   document.getElementById('sidebar-role').textContent = '관리자';
   document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpperCase();
-  setTimeout(() => lucide.createIcons(), 50);
-  loadDashboard();
+  setTimeout(() => {
+    lucide.createIcons();
+    const hash = location.hash.replace('#', '');
+    const validPages = ['dashboard','stock-in','inventory','orders','partners','settlement','models','plans','members'];
+    if (hash && validPages.includes(hash)) {
+      showPage(hash);
+    } else {
+      loadDashboard();
+    }
+  }, 50);
 }
 
 async function doLogin() {
@@ -1088,8 +1096,9 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const items = document.querySelectorAll('.nav-item');
-  const map = {dashboard:0,'stock-in':1,inventory:2,orders:3,partners:4,settlement:5,models:6,members:7};
+  const map = {dashboard:0,'stock-in':1,inventory:2,orders:3,partners:4,settlement:5,models:6,plans:7,members:8};
   if (map[name] !== undefined) items[map[name]].classList.add('active');
+  location.hash = name;
   if (name === 'dashboard') loadDashboard();
   if (name === 'inventory') { loadInventory(); loadInvSummary(); }
   if (name === 'stock-in') {
@@ -1725,6 +1734,7 @@ async function siSaveAll() {
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
 
 // ─── 판매처 검색 드롭다운 ───
 let partnerDdTarget = null;
