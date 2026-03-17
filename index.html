@@ -1261,6 +1261,11 @@ function invResetFilter() {
 }
 
 function setInvFilter(status) {
+  // 재고 목록 탭일 때만 필터 작동
+  const isListTab = document.getElementById('inv-panel-list').style.display !== 'none';
+  if (!isListTab) {
+    switchInvTab('list');
+  }
   document.getElementById('inv-filter-status').value = status;
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   const map = {'':'isc-all','재고':'isc-stock','출고중':'isc-out','개통':'isc-done','숨김':'isc-hidden'};
