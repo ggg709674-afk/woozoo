@@ -367,61 +367,117 @@ tr.drag-over { border-top:2px solid var(--primary); }
 
     <!-- 대시보드 -->
     <div class="page active" id="page-dashboard">
-      <div class="page-header">
-        <div class="page-title">대시보드</div>
-        <div class="page-sub">우주커넥트 재고 현황 요약</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="page-title">대시보드</div>
+          <div class="page-sub">우주커넥트 재고 현황 요약</div>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('stock-in')" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 입고 등록
+        </button>
       </div>
-      <div class="summary-grid" style="grid-template-columns:repeat(5,1fr)">
-        <div class="summary-card">
-          <div class="summary-icon blue"><i data-lucide="package" style="width:16px;height:16px;stroke:var(--primary)"></i></div>
-          <div class="summary-label">전체 재고</div>
+
+      <!-- 요약 카드 5개 -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px">
+        <div class="summary-card" style="cursor:pointer" onclick="showPage('inventory')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:600;color:var(--text-sub)">전체 재고</span>
+            <div class="summary-icon blue"><i data-lucide="package" style="width:14px;height:14px;stroke:var(--primary)"></i></div>
+          </div>
           <div class="summary-value blue" id="s-total">-</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-icon orange"><i data-lucide="truck" style="width:16px;height:16px;stroke:var(--orange)"></i></div>
-          <div class="summary-label">출고중</div>
+        <div class="summary-card" style="cursor:pointer" onclick="showPage('inventory')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:600;color:var(--text-sub)">출고중</span>
+            <div class="summary-icon orange"><i data-lucide="truck" style="width:14px;height:14px;stroke:var(--orange)"></i></div>
+          </div>
           <div class="summary-value orange" id="s-out">-</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-icon green"><i data-lucide="package-check" style="width:16px;height:16px;stroke:var(--green)"></i></div>
-          <div class="summary-label">오늘 입고</div>
+        <div class="summary-card" style="cursor:pointer" onclick="showPage('stock-in')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:600;color:var(--text-sub)">오늘 입고</span>
+            <div class="summary-icon green"><i data-lucide="package-check" style="width:14px;height:14px;stroke:var(--green)"></i></div>
+          </div>
           <div class="summary-value green" id="s-in-today">-</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-icon red"><i data-lucide="bell-ring" style="width:16px;height:16px;stroke:var(--red)"></i></div>
-          <div class="summary-label">미처리 주문</div>
+        <div class="summary-card" style="cursor:pointer" onclick="showPage('orders')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:600;color:var(--text-sub)">미처리 주문</span>
+            <div class="summary-icon red"><i data-lucide="bell-ring" style="width:14px;height:14px;stroke:var(--red)"></i></div>
+          </div>
           <div class="summary-value red" id="s-pending">-</div>
         </div>
-        <div class="summary-card">
-          <div class="summary-icon" style="background:var(--purple-bg)"><i data-lucide="circle-dollar-sign" style="width:16px;height:16px;stroke:var(--purple)"></i></div>
-          <div class="summary-label">총 재고금액</div>
+        <div class="summary-card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:600;color:var(--text-sub)">총 재고금액</span>
+            <div class="summary-icon" style="background:var(--purple-bg)"><i data-lucide="circle-dollar-sign" style="width:14px;height:14px;stroke:var(--purple)"></i></div>
+          </div>
           <div class="summary-value" style="color:var(--purple);font-size:16px" id="s-total-price">-</div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">모델별 재고 현황</div>
+
+      <!-- 2단 레이아웃: 최근주문(넓게) + 모델별재고(좁게) -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="card">
+          <div class="card-header">
+            <div><span class="card-title">최근 주문</span><span class="card-title-sub">최근 10건</span></div>
+            <button class="btn btn-outline btn-sm" onclick="showPage('orders')">전체보기 →</button>
+          </div>
+          <div class="table-wrap">
+            <table id="recent-orders-table">
+              <thead><tr><th>접수일</th><th>거래처</th><th>고객명</th><th>모델</th><th>색상</th><th>용량</th><th>상태</th></tr></thead>
+              <tbody id="recent-orders-body"><tr><td colspan="7" class="loading">로딩중...</td></tr></tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>모델</th><th>단가</th><th>재고 수량</th><th>재고금액</th></tr></thead>
-            <tbody id="model-stock-body"><tr><td colspan="4" class="loading">로딩중...</td></tr></tbody>
-          </table>
-        </div>
-        <div style="text-align:center;padding:10px 0 4px">
-          <button id="model-stock-toggle" style="display:none;background:none;border:1.5px solid var(--border);border-radius:20px;padding:6px 20px;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:all 0.15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sub)'"></button>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">모델별 재고</div>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('inventory')" style="font-size:11px">더보기</button>
+          </div>
+          <div id="model-bar-body"><div class="loading">로딩중...</div></div>
+          <div style="text-align:center;padding:10px 0 4px">
+            <button id="model-stock-toggle" style="display:none;background:none;border:1.5px solid var(--border);border-radius:20px;padding:6px 20px;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:all 0.15s" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-sub)'"></button>
+          </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">최근 주문 <span class="card-title-sub">최근 10건</span></div>
-          <button class="btn btn-outline btn-sm" onclick="showPage('orders')">전체보기 →</button>
+
+      <!-- 2단 레이아웃: 재고금액 + 모델별 상세 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">재고금액 현황</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>모델</th><th>단가</th><th>수량</th><th>재고금액</th></tr></thead>
+              <tbody id="model-stock-body"><tr><td colspan="4" class="loading">로딩중...</td></tr></tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table id="recent-orders-table">
-            <thead><tr><th>접수일</th><th>거래처</th><th>고객명</th><th>모델</th><th>색상</th><th>용량</th><th>상태</th></tr></thead>
-            <tbody id="recent-orders-body"><tr><td colspan="7" class="loading">로딩중...</td></tr></tbody>
-          </table>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">재고 현황 요약</div>
+            <button class="btn btn-outline btn-sm" onclick="showPage('inventory')">상세보기 →</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--primary-light);border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:600;color:var(--primary);margin-bottom:6px">재고</div>
+              <div style="font-size:24px;font-weight:800;color:var(--primary)" id="dash-cnt-stock">-</div>
+            </div>
+            <div style="background:var(--orange-bg);border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:600;color:var(--orange);margin-bottom:6px">출고중</div>
+              <div style="font-size:24px;font-weight:800;color:var(--orange)" id="dash-cnt-out">-</div>
+            </div>
+            <div style="background:var(--green-bg);border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">개통</div>
+              <div style="font-size:24px;font-weight:800;color:var(--green)" id="dash-cnt-done">-</div>
+            </div>
+            <div style="background:var(--border-light);border-radius:10px;padding:14px">
+              <div style="font-size:11px;font-weight:600;color:var(--text-hint);margin-bottom:6px">숨김</div>
+              <div style="font-size:24px;font-weight:800;color:var(--text-hint)" id="dash-cnt-hidden">-</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1004,15 +1060,26 @@ function fmtDate(d) {
 // ─── 대시보드 ───
 async function loadDashboard() {
   const { data: inv } = await sb.from('inventory').select('status, model');
-  document.getElementById('s-total').textContent = inv?.filter(i => i.status === '재고').length || 0;
-  document.getElementById('s-out').textContent = inv?.filter(i => i.status === '출고중').length || 0;
+  const cntStock = inv?.filter(i => i.status === '재고').length || 0;
+  const cntOut = inv?.filter(i => i.status === '출고중').length || 0;
+  const cntDone = inv?.filter(i => i.status === '개통').length || 0;
+  const cntHidden = inv?.filter(i => i.status === '숨김').length || 0;
+  document.getElementById('s-total').textContent = cntStock;
+  document.getElementById('s-out').textContent = cntOut;
+  // 상태별 카운트 (우측 하단 카드)
+  if (document.getElementById('dash-cnt-stock')) {
+    document.getElementById('dash-cnt-stock').textContent = cntStock;
+    document.getElementById('dash-cnt-out').textContent = cntOut;
+    document.getElementById('dash-cnt-done').textContent = cntDone;
+    document.getElementById('dash-cnt-hidden').textContent = cntHidden;
+  }
   const today = new Date(Date.now() + 9*60*60*1000).toISOString().split('T')[0];
   const { data: todayIn } = await sb.from('stock_in').select('id').gte('created_at', today);
   document.getElementById('s-in-today').textContent = todayIn?.length || 0;
   const { data: pending } = await sb.from('orders').select('id').eq('status', '접수대기');
   document.getElementById('s-pending').textContent = pending?.length || 0;
 
-  // 모델별 단가 가져와서 재고금액 계산
+  // 모델별 단가
   const { data: models } = await sb.from('models').select('code, price');
   const priceMap = {};
   models?.forEach(m => { priceMap[m.code] = m.price || 0; });
@@ -1020,9 +1087,30 @@ async function loadDashboard() {
   const stockItems = inv?.filter(i => i.status === '재고') || [];
   const modelCount = {};
   stockItems.forEach(i => { modelCount[i.model] = (modelCount[i.model] || 0) + 1; });
+  const sortedModels = Object.entries(modelCount).sort((a,b) => b[1]-a[1]);
+  const maxCnt = sortedModels[0]?.[1] || 1;
+
+  // 모델별 바 차트
+  const barColors = ['var(--primary)', 'var(--purple)', 'var(--green)', 'var(--orange)', 'var(--red)'];
+  const barBody = document.getElementById('model-bar-body');
+  if (barBody) {
+    if (!sortedModels.length) { barBody.innerHTML = '<div class="empty">재고 없음</div>'; }
+    else {
+      barBody.innerHTML = sortedModels.slice(0, 8).map(([model, cnt], i) => `
+        <div style="margin-bottom:11px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:12px;font-weight:700;color:var(--text);font-family:monospace">${model}</span>
+            <span style="font-size:11px;color:var(--text-sub)">${cnt}대</span>
+          </div>
+          <div style="background:var(--border-light);border-radius:100px;height:5px">
+            <div style="height:5px;border-radius:100px;background:${barColors[i%5]};width:${Math.round(cnt/maxCnt*100)}%;transition:width 0.8s ease"></div>
+          </div>
+        </div>`).join('');
+    }
+  }
 
   let totalPrice = 0;
-  const modelRows = Object.entries(modelCount).sort((a,b) => b[1]-a[1]).map(([model, cnt]) => {
+  const modelRows = sortedModels.map(([model, cnt]) => {
     const price = priceMap[model] || 0;
     const amount = price * cnt;
     totalPrice += amount;
@@ -1041,7 +1129,6 @@ async function loadDashboard() {
     toggleBtn.style.display = 'none';
   } else {
     const LIMIT = 10;
-    // 모든 행 삽입, 10개 초과분은 숨김 클래스
     msBody.innerHTML = modelRows.map((row, i) =>
       i < LIMIT ? row : row.replace('<tr>', '<tr class="model-stock-extra" style="display:none">')
     ).join('');
