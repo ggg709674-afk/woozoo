@@ -236,6 +236,11 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 .match-no { display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--red-bg);color:var(--red);font-size:13px; }
 .tkey-ok { display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--orange-bg);color:var(--orange);font-size:11px;font-weight:700; }
 
+/* ─── 재고현황 카드 ─── */
+.inv-stat-card { background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--border);transition:all 0.15s; }
+.inv-stat-card:hover { transform:translateY(-2px);box-shadow:var(--shadow-md); }
+.inv-stat-card.active { border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,0.1); }
+
 /* ─── 모델 검색 드롭다운 ─── */
 .model-dd-wrap { position:relative; }
 .model-dd-popup { display:none;position:fixed;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);z-index:9999;width:180px; }
@@ -449,34 +454,83 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 재고 현황 -->
     <div class="page" id="page-inventory">
-      <div class="page-header">
-        <div class="page-title">재고 현황</div>
-        <div class="page-sub">전체 재고 상태 확인 및 관리</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">재고 현황</div>
+          <div class="page-sub">전체 재고 상태 확인 및 관리</div>
+        </div>
+        <div id="inv-result-count" style="font-size:12px;color:var(--text-hint);font-weight:600"></div>
       </div>
-      <div class="summary-grid" style="grid-template-columns:repeat(5,1fr)">
-        <div class="summary-card"><div class="summary-label">전체</div><div class="summary-value" id="inv-cnt-all">-</div></div>
-        <div class="summary-card"><div class="summary-label">재고</div><div class="summary-value blue" id="inv-cnt-stock">-</div></div>
-        <div class="summary-card"><div class="summary-label">출고중</div><div class="summary-value orange" id="inv-cnt-out">-</div></div>
-        <div class="summary-card"><div class="summary-label">개통</div><div class="summary-value green" id="inv-cnt-done">-</div></div>
-        <div class="summary-card"><div class="summary-label">숨김</div><div class="summary-value" style="color:var(--text-hint)" id="inv-cnt-hidden">-</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">재고 목록</div>
-          <div class="search-bar">
-            <input type="date" class="filter-select" id="inv-date-from" onchange="loadInventory()" style="min-width:130px"/>
-            <span style="font-size:12px;color:var(--text-hint)">~</span>
-            <input type="date" class="filter-select" id="inv-date-to" onchange="loadInventory()" style="min-width:130px"/>
-            <select class="filter-select" id="inv-filter-status" onchange="loadInventory()">
-              <option value="">전체 상태</option>
-              <option value="재고">재고</option>
-              <option value="출고중">출고중</option>
-              <option value="개통">개통</option>
-              <option value="숨김">숨김</option>
-            </select>
-            <input class="search-input-bar" id="inv-search" placeholder="🔍 모델명, 일련번호, 색상" oninput="loadInventory()" style="min-width:190px"/>
-            <button class="btn btn-ghost btn-sm" onclick="invResetFilter()">초기화</button>
+
+      <!-- 상태별 카드 -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">
+        <div class="inv-stat-card" onclick="setInvFilter('')" id="isc-all" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:0.5px">전체</span>
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--border-light);display:flex;align-items:center;justify-content:center">
+              <i data-lucide="layers" style="width:14px;height:14px;stroke:var(--text-sub)"></i>
+            </div>
           </div>
+          <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px" id="inv-cnt-all">-</div>
+        </div>
+        <div class="inv-stat-card" onclick="setInvFilter('재고')" id="isc-stock" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:0.5px">재고</span>
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center">
+              <i data-lucide="package" style="width:14px;height:14px;stroke:var(--primary)"></i>
+            </div>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:var(--primary);letter-spacing:-1px" id="inv-cnt-stock">-</div>
+        </div>
+        <div class="inv-stat-card" onclick="setInvFilter('출고중')" id="isc-out" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:0.5px">출고중</span>
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--orange-bg);display:flex;align-items:center;justify-content:center">
+              <i data-lucide="truck" style="width:14px;height:14px;stroke:var(--orange)"></i>
+            </div>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:var(--orange);letter-spacing:-1px" id="inv-cnt-out">-</div>
+        </div>
+        <div class="inv-stat-card" onclick="setInvFilter('개통')" id="isc-done" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px">개통</span>
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--green-bg);display:flex;align-items:center;justify-content:center">
+              <i data-lucide="check-circle-2" style="width:14px;height:14px;stroke:var(--green)"></i>
+            </div>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:var(--green);letter-spacing:-1px" id="inv-cnt-done">-</div>
+        </div>
+        <div class="inv-stat-card" onclick="setInvFilter('숨김')" id="isc-hidden" style="cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:0.5px">숨김</span>
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--border-light);display:flex;align-items:center;justify-content:center">
+              <i data-lucide="eye-off" style="width:14px;height:14px;stroke:var(--text-hint)"></i>
+            </div>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:var(--text-hint);letter-spacing:-1px" id="inv-cnt-hidden">-</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <!-- 검색 필터바 -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border-light);margin-bottom:12px">
+          <div style="position:relative;flex:1;min-width:200px">
+            <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);stroke:var(--text-hint);pointer-events:none"></i>
+            <input class="search-input-bar" id="inv-search" placeholder="모델명, 일련번호, 색상 검색" oninput="loadInventory()" style="width:100%;padding-left:32px"/>
+          </div>
+          <input type="date" class="filter-select" id="inv-date-from" onchange="loadInventory()" style="min-width:130px"/>
+          <span style="font-size:12px;color:var(--text-hint)">~</span>
+          <input type="date" class="filter-select" id="inv-date-to" onchange="loadInventory()" style="min-width:130px"/>
+          <select class="filter-select" id="inv-filter-status" onchange="loadInventory()">
+            <option value="">전체 상태</option>
+            <option value="재고">재고</option>
+            <option value="출고중">출고중</option>
+            <option value="개통">개통</option>
+            <option value="숨김">숨김</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="invResetFilter()" style="display:flex;align-items:center;gap:4px">
+            <i data-lucide="rotate-ccw" style="width:12px;height:12px"></i> 초기화
+          </button>
         </div>
         <div class="table-wrap">
           <table>
@@ -499,7 +553,6 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
             <tbody id="inv-tbody"><tr><td colspan="12" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
-        <div style="padding:12px 4px;font-size:12px;color:var(--text-hint)" id="inv-result-count"></div>
       </div>
     </div>
 
@@ -964,6 +1017,16 @@ function calcDays(d) {
 
 function invResetFilter() {
   ['inv-date-from','inv-date-to','inv-filter-status','inv-search'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('isc-all').classList.add('active');
+  loadInventory();
+}
+
+function setInvFilter(status) {
+  document.getElementById('inv-filter-status').value = status;
+  document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
+  const map = {'':'isc-all','재고':'isc-stock','출고중':'isc-out','개통':'isc-done','숨김':'isc-hidden'};
+  document.getElementById(map[status]).classList.add('active');
   loadInventory();
 }
 
