@@ -622,38 +622,38 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
           <table style="width:max-content;min-width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed">
             <thead>
               <tr style="background:var(--border-light)">
-                <th class="stl-th" style="position:sticky;left:0;background:var(--border-light);z-index:2;width:32px">#</th>
-                <th class="stl-th" style="min-width:36px">매칭</th>
-                <th class="stl-th" style="min-width:120px">서비스관리번호</th>
-                <th class="stl-th" style="min-width:120px">T-GATE접수일시</th>
-                <th class="stl-th" style="min-width:70px">정책</th>
-                <th class="stl-th" style="min-width:70px">개통일</th>
-                <th class="stl-th" style="min-width:80px">정책구분</th>
-                <th class="stl-th" style="min-width:100px">판매처</th>
-                <th class="stl-th" style="min-width:75px">개통유형</th>
-                <th class="stl-th" style="min-width:75px">고객명</th>
-                <th class="stl-th" style="min-width:85px">생년월일</th>
-                <th class="stl-th" style="min-width:110px">번호</th>
-                <th class="stl-th" style="min-width:110px">모델명</th>
-                <th class="stl-th" style="min-width:120px">일련번호</th>
-                <th class="stl-th" style="min-width:70px">유심여부</th>
-                <th class="stl-th" style="min-width:120px">요금제</th>
-                <th class="stl-th" style="min-width:60px">마스콜3</th>
-                <th class="stl-th" style="min-width:70px">T ALL케어</th>
-                <th class="stl-th" style="min-width:80px;color:var(--orange)">출고가</th>
-                <th class="stl-th" style="min-width:75px">현금/할부</th>
-                <th class="stl-th" style="min-width:75px">약정유형</th>
-                <th class="stl-th" style="min-width:80px">공통지원금</th>
-                <th class="stl-th" style="min-width:80px">추가지원금</th>
-                <th class="stl-th" style="min-width:75px">할부원금</th>
-                <th class="stl-th" style="min-width:70px">리베이트</th>
-                <th class="stl-th" style="min-width:60px">마스콜</th>
-                <th class="stl-th" style="min-width:60px">T올케어</th>
-                <th class="stl-th" style="min-width:95px">추가지원금정책</th>
-                <th class="stl-th" style="min-width:80px">협력점정산</th>
-                <th class="stl-th" style="min-width:50px">검수</th>
-                <th class="stl-th" style="min-width:120px">메모</th>
-                <th class="stl-th" style="min-width:32px"></th>
+                <th class="stl-th" style="position:sticky;left:0;background:var(--border-light);z-index:2;width:28px">#</th>
+                <th class="stl-th" style="width:36px">매칭</th>
+                <th class="stl-th" style="min-width:100px">서비스관리번호</th>
+                <th class="stl-th" style="min-width:110px">T-GATE접수일시</th>
+                <th class="stl-th" style="min-width:50px">정책</th>
+                <th class="stl-th" style="min-width:50px">개통일</th>
+                <th class="stl-th" style="min-width:70px">정책구분</th>
+                <th class="stl-th" style="min-width:90px">판매처</th>
+                <th class="stl-th" style="min-width:65px">개통유형</th>
+                <th class="stl-th" style="min-width:65px">고객명</th>
+                <th class="stl-th" style="min-width:65px">생년월일</th>
+                <th class="stl-th" style="min-width:100px">번호</th>
+                <th class="stl-th" style="min-width:100px">모델명</th>
+                <th class="stl-th" style="min-width:110px">일련번호</th>
+                <th class="stl-th" style="min-width:60px">유심여부</th>
+                <th class="stl-th" style="min-width:110px">요금제</th>
+                <th class="stl-th" style="min-width:50px">마스콜3</th>
+                <th class="stl-th" style="min-width:60px">T ALL케어</th>
+                <th class="stl-th" style="min-width:70px;color:var(--orange)">출고가</th>
+                <th class="stl-th" style="min-width:65px">현금/할부</th>
+                <th class="stl-th" style="min-width:65px">약정유형</th>
+                <th class="stl-th" style="min-width:70px">공통지원금</th>
+                <th class="stl-th" style="min-width:70px">추가지원금</th>
+                <th class="stl-th" style="min-width:65px">할부원금</th>
+                <th class="stl-th" style="min-width:60px">리베이트</th>
+                <th class="stl-th" style="min-width:50px">마스콜</th>
+                <th class="stl-th" style="min-width:50px">T올케어</th>
+                <th class="stl-th" style="min-width:85px">추가지원금정책</th>
+                <th class="stl-th" style="min-width:70px">협력점정산</th>
+                <th class="stl-th" style="min-width:45px">검수</th>
+                <th class="stl-th" style="min-width:100px">메모</th>
+                <th class="stl-th" style="width:28px"></th>
               </tr>
             </thead>
             <tbody id="settl-tbody">
@@ -1366,80 +1366,75 @@ function renderSettlTable() {
     tbody.innerHTML = '<tr><td colspan="32" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>';
     return;
   }
-  const partnerOpts = settlPartners.map(p=>`<option ${''} value="${p.name}">${p.name}</option>`).join('');
-  const modelOpts = settlModels.map(m=>`<option value="${m.code}">${m.code}</option>`).join('');
-  tbody.innerHTML = settlRows.map((r, i) => {
+  const modelDatalist = `<datalist id="model-dl">${settlModels.map(m=>`<option value="${m.code}">`).join('')}</datalist>`;
+  tbody.innerHTML = modelDatalist + settlRows.map((r, i) => {
     const matchBadge = r.matched === true ? '<span class="match-ok">✓</span>' : r.matched === false ? '<span class="match-no">✗</span>' : '';
     const price = r.model ? getSettlPrice(r.model) : 0;
     const autoSvc = r.tkey ? 'stl-auto' : '';
+    const actDisplay = r.act_date ? (() => { const d = new Date(r.act_date+'T00:00:00'); return `${d.getMonth()+1}/${d.getDate()}`; })() : '';
     return `<tr>
-      <td class="stl-td" style="position:sticky;left:0;background:var(--white);z-index:1;font-size:11px;color:var(--text-hint);font-weight:700;text-align:center;width:32px">${i+1}</td>
+      <td class="stl-td" style="position:sticky;left:0;background:var(--white);z-index:1;font-size:11px;color:var(--text-hint);font-weight:700;text-align:center;width:28px">${i+1}</td>
       <td class="stl-td" style="text-align:center;width:36px">${matchBadge}</td>
-      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" placeholder="-" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.tgate||''}" placeholder="-" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.tgate||''}" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.policy||''}" oninput="settlUpdate(${i},'policy',this.value)"/></td>
       <td class="stl-td" onclick="this.querySelector('input[type=date]').showPicker()" style="cursor:pointer;text-align:center">
-        <span style="font-size:12px;pointer-events:none">${r.act_date ? new Date(r.act_date+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일','').replace('.','') : ''}</span>
-        <input type="date" value="${r.act_date||''}" style="width:0;height:0;opacity:0;position:absolute;pointer-events:none" onchange="settlUpdate(${i},'act_date',this.value);this.closest('td').querySelector('span').textContent=this.value?new Date(this.value+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일','').replace('.',''):''"/>
+        <span style="font-size:12px;pointer-events:none">${actDisplay}</span>
+        <input type="date" value="${r.act_date||''}" style="width:0;height:0;opacity:0;position:absolute;pointer-events:none" onchange="settlUpdate(${i},'act_date',this.value);const d=new Date(this.value+'T00:00:00');this.closest('td').querySelector('span').textContent=this.value?(d.getMonth()+1)+'/'+ d.getDate():''"/>
       </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'policy_type',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.policy_type==='기본정책'?'selected':''}>기본정책</option>
           <option ${r.policy_type==='특별정책'?'selected':''}>특별정책</option>
         </select>
       </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'seller',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           ${settlPartners.map(p=>`<option ${r.seller===p.name?'selected':''}>${p.name}</option>`).join('')}
         </select>
       </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'act_type',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.act_type==='신규'?'selected':''}>신규</option>
           <option ${r.act_type==='번호이동'?'selected':''}>번호이동</option>
           <option ${r.act_type==='기기변경'?'selected':''}>기기변경</option>
         </select>
       </td>
       <td class="stl-td"><input class="stl-input" value="${r.customer||''}" oninput="settlUpdate(${i},'customer',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.birth||''}" placeholder="YYMMDD" maxlength="6" oninput="settlUpdate(${i},'birth',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.phone ? fmtPhone(r.phone) : ''}" placeholder="010-" oninput="settlUpdate(${i},'phone',this.value)" onblur="this.value=fmtPhone(this.value);settlUpdate(${i},'phone',this.value)"/></td>
-      <td class="stl-td">
-        <select class="stl-select" onchange="settlUpdateModel(${i},this.value)">
-          <option value="">-</option>
-          ${settlModels.map(m=>`<option ${r.model===m.code?'selected':''}>${m.code}</option>`).join('')}
-        </select>
-      </td>
-      <td class="stl-td"><input class="stl-input" value="${r.serial||''}" placeholder="일련번호" oninput="settlUpdateSerial(${i},this.value)" style="font-family:monospace"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.birth||''}" maxlength="6" oninput="settlUpdate(${i},'birth',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.phone ? fmtPhone(r.phone) : ''}" oninput="settlUpdate(${i},'phone',this.value)" onblur="this.value=fmtPhone(this.value);settlUpdate(${i},'phone',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.model||''}" list="model-dl" oninput="settlUpdateModel(${i},this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.serial||''}" oninput="settlUpdateSerial(${i},this.value)" style="font-family:monospace"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'usim',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.usim==='포함'?'selected':''}>포함</option>
           <option ${r.usim==='미포함'?'selected':''}>미포함</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.plan||''}" placeholder="요금제" oninput="settlUpdate(${i},'plan',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.plan||''}" oninput="settlUpdate(${i},'plan',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.mascall3||''}" oninput="settlUpdate(${i},'mascall3',this.value)"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'tall',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.tall==='가입'?'selected':''}>가입</option>
           <option ${r.tall==='미가입'?'selected':''}>미가입</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input stl-auto" value="${price ? price.toLocaleString() : ''}" placeholder="자동" readonly/></td>
+      <td class="stl-td"><input class="stl-input stl-auto" value="${price ? price.toLocaleString() : ''}" readonly/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'pay_type',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.pay_type==='현금'?'selected':''}>현금</option>
           <option ${r.pay_type==='할부'?'selected':''}>할부</option>
         </select>
       </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'contract',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.contract==='선택약정'?'selected':''}>선택약정</option>
           <option ${r.contract==='공시지원'?'selected':''}>공시지원</option>
           <option ${r.contract==='자급제'?'selected':''}>자급제</option>
@@ -1455,13 +1450,13 @@ function renderSettlTable() {
       <td class="stl-td"><input class="stl-input" type="number" value="${r.partner_settl||''}" oninput="settlUpdate(${i},'partner_settl',this.value)"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'inspect',this.value)">
-          <option value="">-</option>
+          <option value=""></option>
           <option ${r.inspect==='O'?'selected':''}>O</option>
           <option ${r.inspect==='X'?'selected':''}>X</option>
         </select>
       </td>
       <td class="stl-td"><input class="stl-input" value="${r.memo||''}" oninput="settlUpdate(${i},'memo',this.value)"/></td>
-      <td class="stl-td" style="text-align:center;width:32px"><button style="background:none;border:none;color:var(--text-hint);cursor:pointer;font-size:16px;padding:0 4px" onclick="settlRemoveRow(${i})">×</button></td>
+      <td class="stl-td" style="text-align:center;width:28px"><button style="background:none;border:none;color:var(--text-hint);cursor:pointer;font-size:16px;padding:0 4px" onclick="settlRemoveRow(${i})">×</button></td>
     </tr>`;
   }).join('');
 }
@@ -1482,15 +1477,31 @@ function settlUpdate(i, key, val) {
 
 async function settlUpdateModel(i, val) {
   settlRows[i].model = val;
-  // 일련번호 있으면 재고 매칭
   if (settlRows[i].serial) await settlCheckMatch(i);
-  renderSettlTable();
+  // 출고가 셀만 업데이트
+  const rows = document.querySelectorAll('#settl-tbody tr');
+  if (rows[i]) {
+    const price = getSettlPrice(val);
+    const priceCell = rows[i].querySelector('.stl-auto');
+    if (priceCell) priceCell.value = price ? price.toLocaleString() : '';
+    const matchCell = rows[i].cells[1];
+    const m = settlRows[i].matched;
+    matchCell.innerHTML = m === true ? '<span class="match-ok">✓</span>' : m === false ? '<span class="match-no">✗</span>' : '';
+  }
 }
 
 async function settlUpdateSerial(i, val) {
   settlRows[i].serial = val;
-  if (val.length >= 5) await settlCheckMatch(i);
-  renderSettlTable();
+  if (val.length >= 5) {
+    await settlCheckMatch(i);
+    // 매칭 결과만 해당 셀 업데이트 (전체 렌더링 X)
+    const rows = document.querySelectorAll('#settl-tbody tr');
+    if (rows[i]) {
+      const matchCell = rows[i].cells[1];
+      const m = settlRows[i].matched;
+      matchCell.innerHTML = m === true ? '<span class="match-ok">✓</span>' : m === false ? '<span class="match-no">✗</span>' : '';
+    }
+  }
 }
 
 async function settlCheckMatch(i) {
