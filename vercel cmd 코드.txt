@@ -2,3 +2,12 @@ cd C:\woozoo
 git add .
 git commit -m "update"
 git push
+
+
+
+
+강제업데이트
+
+cd C:\woozoo
+git commit --allow-empty -m "update"
+git push
