@@ -622,43 +622,42 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
           <table style="width:max-content;min-width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed">
             <thead>
               <tr style="background:var(--border-light)">
-                <th class="stl-th" style="position:sticky;left:0;background:var(--border-light);z-index:2;width:36px">#</th>
-                <th class="stl-th">매칭</th>
-                <th class="stl-th">T키</th>
+                <th class="stl-th" style="position:sticky;left:0;background:var(--border-light);z-index:2;width:32px">#</th>
+                <th class="stl-th" style="min-width:36px">매칭</th>
                 <th class="stl-th" style="min-width:120px">서비스관리번호</th>
-                <th class="stl-th" style="min-width:130px">T-GATE접수일시</th>
-                <th class="stl-th" style="min-width:80px">정책</th>
-                <th class="stl-th" style="min-width:95px">개통일</th>
+                <th class="stl-th" style="min-width:120px">T-GATE접수일시</th>
+                <th class="stl-th" style="min-width:70px">정책</th>
+                <th class="stl-th" style="min-width:70px">개통일</th>
                 <th class="stl-th" style="min-width:80px">정책구분</th>
                 <th class="stl-th" style="min-width:100px">판매처</th>
-                <th class="stl-th" style="min-width:80px">개통유형</th>
-                <th class="stl-th" style="min-width:80px">고객명</th>
-                <th class="stl-th" style="min-width:95px">생년월일</th>
+                <th class="stl-th" style="min-width:75px">개통유형</th>
+                <th class="stl-th" style="min-width:75px">고객명</th>
+                <th class="stl-th" style="min-width:85px">생년월일</th>
                 <th class="stl-th" style="min-width:110px">번호</th>
                 <th class="stl-th" style="min-width:110px">모델명</th>
                 <th class="stl-th" style="min-width:120px">일련번호</th>
-                <th class="stl-th" style="min-width:75px">유심여부</th>
+                <th class="stl-th" style="min-width:70px">유심여부</th>
                 <th class="stl-th" style="min-width:120px">요금제</th>
-                <th class="stl-th" style="min-width:65px">마스콜3</th>
-                <th class="stl-th" style="min-width:75px">T ALL케어</th>
-                <th class="stl-th" style="min-width:85px;color:var(--orange)">출고가</th>
-                <th class="stl-th" style="min-width:80px">현금/할부</th>
-                <th class="stl-th" style="min-width:80px">약정유형</th>
-                <th class="stl-th" style="min-width:85px">공통지원금</th>
-                <th class="stl-th" style="min-width:85px">추가지원금</th>
-                <th class="stl-th" style="min-width:80px">할부원금</th>
-                <th class="stl-th" style="min-width:75px">리베이트</th>
-                <th class="stl-th" style="min-width:65px">마스콜</th>
-                <th class="stl-th" style="min-width:65px">T올케어</th>
-                <th class="stl-th" style="min-width:100px">추가지원금정책</th>
-                <th class="stl-th" style="min-width:85px">협력점정산</th>
-                <th class="stl-th" style="min-width:55px">검수</th>
+                <th class="stl-th" style="min-width:60px">마스콜3</th>
+                <th class="stl-th" style="min-width:70px">T ALL케어</th>
+                <th class="stl-th" style="min-width:80px;color:var(--orange)">출고가</th>
+                <th class="stl-th" style="min-width:75px">현금/할부</th>
+                <th class="stl-th" style="min-width:75px">약정유형</th>
+                <th class="stl-th" style="min-width:80px">공통지원금</th>
+                <th class="stl-th" style="min-width:80px">추가지원금</th>
+                <th class="stl-th" style="min-width:75px">할부원금</th>
+                <th class="stl-th" style="min-width:70px">리베이트</th>
+                <th class="stl-th" style="min-width:60px">마스콜</th>
+                <th class="stl-th" style="min-width:60px">T올케어</th>
+                <th class="stl-th" style="min-width:95px">추가지원금정책</th>
+                <th class="stl-th" style="min-width:80px">협력점정산</th>
+                <th class="stl-th" style="min-width:50px">검수</th>
                 <th class="stl-th" style="min-width:120px">메모</th>
-                <th class="stl-th" style="min-width:36px"></th>
+                <th class="stl-th" style="min-width:32px"></th>
               </tr>
             </thead>
             <tbody id="settl-tbody">
-              <tr><td colspan="33" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>
+              <tr><td colspan="32" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>
             </tbody>
           </table>
         </div>
@@ -1331,12 +1330,15 @@ async function siSaveAll() {
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // ─── 정산 관리 ───
-let settlRows = [], tkeyData = [], settlModels = [], settlRowNum = 0;
+let settlRows = [], tkeyData = [], settlModels = [], settlPartners = [], settlRowNum = 0;
 
 async function loadSettlement() {
-  // 모델 단가 로드
-  const { data } = await sb.from('models').select('code, price').eq('is_active', true);
-  settlModels = data || [];
+  const [{ data: models }, { data: partners }] = await Promise.all([
+    sb.from('models').select('code, price').eq('is_active', true).order('code'),
+    sb.from('partners').select('name').order('name'),
+  ]);
+  settlModels = models || [];
+  settlPartners = partners || [];
   renderSettlTable();
 }
 
@@ -1345,24 +1347,38 @@ function getSettlPrice(modelCode) {
   return m?.price || 0;
 }
 
+function fmtPhone(v) {
+  const d = v.replace(/\D/g,'');
+  if (d.length===11) return d.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3');
+  if (d.length===10) return d.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');
+  return v;
+}
+function fmtActDate(v) {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d)) return v;
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
 function renderSettlTable() {
   const tbody = document.getElementById('settl-tbody');
   if (!settlRows.length) {
-    tbody.innerHTML = '<tr><td colspan="33" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="32" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>';
     return;
   }
+  const partnerOpts = settlPartners.map(p=>`<option ${''} value="${p.name}">${p.name}</option>`).join('');
+  const modelOpts = settlModels.map(m=>`<option value="${m.code}">${m.code}</option>`).join('');
   tbody.innerHTML = settlRows.map((r, i) => {
     const matchBadge = r.matched === true ? '<span class="match-ok">✓</span>' : r.matched === false ? '<span class="match-no">✗</span>' : '';
-    const tkeyBadge = r.tkey ? '<span class="tkey-ok">T</span>' : '';
     const price = r.model ? getSettlPrice(r.model) : 0;
+    const autoSvc = r.tkey ? 'stl-auto' : '';
     return `<tr>
-      <td class="stl-td" style="position:sticky;left:0;background:var(--white);z-index:1;font-size:11px;color:var(--text-hint);font-weight:700;text-align:center">${i+1}</td>
-      <td class="stl-td" style="text-align:center">${matchBadge}</td>
-      <td class="stl-td" style="text-align:center">${tkeyBadge}</td>
-      <td class="stl-td"><input class="stl-input ${r.tkey?'stl-auto':''}" value="${r.svc_no||''}" placeholder="-" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input ${r.tkey?'stl-auto':''}" value="${r.tgate||''}" placeholder="-" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.policy||''}" placeholder="" oninput="settlUpdate(${i},'policy',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="date" value="${r.act_date||''}" oninput="settlUpdate(${i},'act_date',this.value)"/></td>
+      <td class="stl-td" style="position:sticky;left:0;background:var(--white);z-index:1;font-size:11px;color:var(--text-hint);font-weight:700;text-align:center;width:32px">${i+1}</td>
+      <td class="stl-td" style="text-align:center;width:36px">${matchBadge}</td>
+      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" placeholder="-" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.tgate||''}" placeholder="-" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.policy||''}" oninput="settlUpdate(${i},'policy',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="date" value="${r.act_date||''}" style="padding:0 4px" onchange="settlUpdate(${i},'act_date',this.value)" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'; this.setAttribute('data-display', fmtActDate(this.value))"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'policy_type',this.value)">
           <option value="">-</option>
@@ -1370,7 +1386,12 @@ function renderSettlTable() {
           <option ${r.policy_type==='특별정책'?'selected':''}>특별정책</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" placeholder="" oninput="settlUpdate(${i},'seller',this.value)"/></td>
+      <td class="stl-td">
+        <select class="stl-select" onchange="settlUpdate(${i},'seller',this.value)">
+          <option value="">-</option>
+          ${settlPartners.map(p=>`<option ${r.seller===p.name?'selected':''}>${p.name}</option>`).join('')}
+        </select>
+      </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'act_type',this.value)">
           <option value="">-</option>
@@ -1379,11 +1400,16 @@ function renderSettlTable() {
           <option ${r.act_type==='기기변경'?'selected':''}>기기변경</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.customer||''}" placeholder="" oninput="settlUpdate(${i},'customer',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.birth||''}" placeholder="YYYYMMDD" oninput="settlUpdate(${i},'birth',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.phone||''}" placeholder="010-" oninput="settlUpdate(${i},'phone',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.model||''}" placeholder="모델코드" oninput="settlUpdateModel(${i},this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.serial||''}" placeholder="일련번호" oninput="settlUpdateSerial(${i},this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.customer||''}" oninput="settlUpdate(${i},'customer',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.birth||''}" placeholder="YYMMDD" maxlength="6" oninput="settlUpdate(${i},'birth',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.phone ? fmtPhone(r.phone) : ''}" placeholder="010-" oninput="settlUpdate(${i},'phone',this.value)" onblur="this.value=fmtPhone(this.value);settlUpdate(${i},'phone',this.value)"/></td>
+      <td class="stl-td">
+        <select class="stl-select" onchange="settlUpdateModel(${i},this.value)">
+          <option value="">-</option>
+          ${settlModels.map(m=>`<option ${r.model===m.code?'selected':''}>${m.code}</option>`).join('')}
+        </select>
+      </td>
+      <td class="stl-td"><input class="stl-input" value="${r.serial||''}" placeholder="일련번호" oninput="settlUpdateSerial(${i},this.value)" style="font-family:monospace"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'usim',this.value)">
           <option value="">-</option>
@@ -1392,7 +1418,7 @@ function renderSettlTable() {
         </select>
       </td>
       <td class="stl-td"><input class="stl-input" value="${r.plan||''}" placeholder="요금제" oninput="settlUpdate(${i},'plan',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.mascall3||''}" placeholder="" oninput="settlUpdate(${i},'mascall3',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.mascall3||''}" oninput="settlUpdate(${i},'mascall3',this.value)"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'tall',this.value)">
           <option value="">-</option>
@@ -1416,14 +1442,14 @@ function renderSettlTable() {
           <option ${r.contract==='자급제'?'selected':''}>자급제</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.common_sub||''}" placeholder="" oninput="settlUpdate(${i},'common_sub',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.add_sub||''}" placeholder="" oninput="settlUpdate(${i},'add_sub',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.installment||''}" placeholder="" oninput="settlUpdate(${i},'installment',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.rebate||''}" placeholder="" oninput="settlUpdate(${i},'rebate',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.mascall||''}" placeholder="" oninput="settlUpdate(${i},'mascall',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.tallcare||''}" placeholder="" oninput="settlUpdate(${i},'tallcare',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.add_policy||''}" placeholder="" oninput="settlUpdate(${i},'add_policy',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="number" value="${r.partner_settl||''}" placeholder="" oninput="settlUpdate(${i},'partner_settl',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.common_sub||''}" oninput="settlUpdate(${i},'common_sub',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.add_sub||''}" oninput="settlUpdate(${i},'add_sub',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.installment||''}" oninput="settlUpdate(${i},'installment',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.rebate||''}" oninput="settlUpdate(${i},'rebate',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.mascall||''}" oninput="settlUpdate(${i},'mascall',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.tallcare||''}" oninput="settlUpdate(${i},'tallcare',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.add_policy||''}" oninput="settlUpdate(${i},'add_policy',this.value)"/></td>
+      <td class="stl-td"><input class="stl-input" type="number" value="${r.partner_settl||''}" oninput="settlUpdate(${i},'partner_settl',this.value)"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'inspect',this.value)">
           <option value="">-</option>
@@ -1431,8 +1457,8 @@ function renderSettlTable() {
           <option ${r.inspect==='X'?'selected':''}>X</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.memo||''}" placeholder="" oninput="settlUpdate(${i},'memo',this.value)"/></td>
-      <td class="stl-td" style="text-align:center"><button style="background:none;border:none;color:var(--text-hint);cursor:pointer;font-size:16px;padding:0 4px" onclick="settlRemoveRow(${i})" title="삭제">×</button></td>
+      <td class="stl-td"><input class="stl-input" value="${r.memo||''}" oninput="settlUpdate(${i},'memo',this.value)"/></td>
+      <td class="stl-td" style="text-align:center;width:32px"><button style="background:none;border:none;color:var(--text-hint);cursor:pointer;font-size:16px;padding:0 4px" onclick="settlRemoveRow(${i})">×</button></td>
     </tr>`;
   }).join('');
 }
