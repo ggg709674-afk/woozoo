@@ -337,15 +337,15 @@ tr.drag-over { border-top:2px solid var(--primary); }
     <nav class="nav">
       <div class="nav-section">메인</div>
       <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"><i data-lucide="layout-dashboard"></i></span> 대시보드</div>
+      <div class="nav-item" onclick="showPage('settlement')"><span class="nav-icon"><i data-lucide="calculator"></i></span> 정산 관리</div>
       <div class="nav-section">재고</div>
       <div class="nav-item" onclick="showPage('stock-in')"><span class="nav-icon"><i data-lucide="package-plus"></i></span> 입고 등록</div>
       <div class="nav-item" onclick="showPage('inventory')"><span class="nav-icon"><i data-lucide="clipboard-list"></i></span> 재고 현황</div>
       <div class="nav-section">운영</div>
       <div class="nav-item" onclick="showPage('orders')"><span class="nav-icon"><i data-lucide="refresh-cw"></i></span> 주문 처리</div>
       <div class="nav-item" onclick="showPage('partners')"><span class="nav-icon"><i data-lucide="building-2"></i></span> 거래처 관리</div>
-      <div class="nav-section">정산</div>
-      <div class="nav-item" onclick="showPage('settlement')"><span class="nav-icon"><i data-lucide="calculator"></i></span> 정산 관리</div>
       <div class="nav-section">설정</div>
+      <div class="nav-item" onclick="showPage('support')"><span class="nav-icon"><i data-lucide="hand-coins"></i></span> 공통지원금</div>
       <div class="nav-item" onclick="showPage('models')"><span class="nav-icon"><i data-lucide="smartphone"></i></span> 모델 관리</div>
       <div class="nav-item" onclick="showPage('plans')"><span class="nav-icon"><i data-lucide="receipt-text"></i></span> 요금제 관리</div>
       <div class="nav-item" onclick="showPage('members')"><span class="nav-icon"><i data-lucide="users"></i></span> 회원 관리</div>
@@ -1098,7 +1098,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const items = document.querySelectorAll('.nav-item');
-  const map = {dashboard:0,'stock-in':1,inventory:2,orders:3,partners:4,settlement:5,models:6,plans:7,members:8};
+  const map = {dashboard:0,settlement:1,'stock-in':2,inventory:3,orders:4,partners:5,support:6,models:7,plans:8,members:9};
   if (map[name] !== undefined) items[map[name]].classList.add('active');
   location.hash = name;
   if (name === 'dashboard') loadDashboard();
