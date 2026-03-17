@@ -236,7 +236,15 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 .match-no { display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--red-bg);color:var(--red);font-size:13px; }
 .tkey-ok { display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--orange-bg);color:var(--orange);font-size:11px;font-weight:700; }
 
-/* ─── 재고현황 카드 ─── */
+/* ─── 재고현황 탭 ─── */
+.inv-tab { background:none;border:none;padding:10px 20px;font-size:14px;font-weight:600;color:var(--text-hint);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all 0.15s; }
+.inv-tab:hover { color:var(--text); }
+.inv-tab.active { color:var(--primary);border-bottom-color:var(--primary); }
+/* 드래그 행 */
+.drag-handle { cursor:grab;color:var(--text-hint);padding:0 8px;user-select:none; }
+.drag-handle:active { cursor:grabbing; }
+tr.dragging { opacity:0.4; }
+tr.drag-over { border-top:2px solid var(--primary); }
 .inv-stat-card { background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--border);transition:all 0.15s; }
 .inv-stat-card:hover { transform:translateY(-2px);box-shadow:var(--shadow-md); }
 .inv-stat-card.active { border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,0.1); }
@@ -518,47 +526,72 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
         </div>
       </div>
 
-      <div class="card">
-        <!-- 검색 필터바 -->
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border-light);margin-bottom:12px">
-          <div style="position:relative;flex:1;min-width:200px">
-            <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);stroke:var(--text-hint);pointer-events:none"></i>
-            <input class="search-input-bar" id="inv-search" placeholder="모델명, 일련번호, 색상 검색" oninput="loadInventory()" style="width:100%;padding-left:32px"/>
+      <!-- 탭 -->
+      <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--border)">
+        <button class="inv-tab active" id="inv-tab-summary" onclick="switchInvTab('summary')">재고 현황표</button>
+        <button class="inv-tab" id="inv-tab-list" onclick="switchInvTab('list')">재고 목록</button>
+      </div>
+
+      <!-- 재고 현황표 탭 -->
+      <div id="inv-panel-summary">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">재고 현황표 <span class="card-title-sub">드래그로 순서 변경</span></div>
           </div>
-          <input type="date" class="filter-select" id="inv-date-from" onchange="loadInventory()" style="min-width:130px"/>
-          <span style="font-size:12px;color:var(--text-hint)">~</span>
-          <input type="date" class="filter-select" id="inv-date-to" onchange="loadInventory()" style="min-width:130px"/>
-          <select class="filter-select" id="inv-filter-status" onchange="loadInventory()">
-            <option value="">전체 상태</option>
-            <option value="재고">재고</option>
-            <option value="출고중">출고중</option>
-            <option value="개통">개통</option>
-            <option value="숨김">숨김</option>
-          </select>
-          <button class="btn btn-ghost btn-sm" onclick="invResetFilter()" style="display:flex;align-items:center;gap:4px">
-            <i data-lucide="rotate-ccw" style="width:12px;height:12px"></i> 초기화
-          </button>
+          <div class="table-wrap">
+            <table id="inv-summary-table">
+              <thead>
+                <tr>
+                  <th style="width:32px"></th>
+                  <th>모델</th>
+                  <th>색상</th>
+                  <th style="color:var(--primary)">가용재고</th>
+                  <th style="color:var(--text-hint)">숨김</th>
+                  <th style="color:var(--orange)">출고중</th>
+                  <th style="color:var(--green)">개통</th>
+                  <th>전체수량</th>
+                </tr>
+              </thead>
+              <tbody id="inv-summary-tbody"><tr><td colspan="8" class="loading">로딩중...</td></tr></tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>상태</th>
-                <th>입고일</th>
-                <th>경과</th>
-                <th>모델명</th>
-                <th>일련번호</th>
-                <th>색상</th>
-                <th>재고위치</th>
-                <th>출고일</th>
-                <th>출고점명</th>
-                <th>개통일</th>
-                <th>개통점</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="inv-tbody"><tr><td colspan="12" class="loading">로딩중...</td></tr></tbody>
-          </table>
+      </div>
+
+      <!-- 재고 목록 탭 -->
+      <div id="inv-panel-list" style="display:none">
+        <div class="card">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border-light);margin-bottom:12px">
+            <div style="position:relative;flex:1;min-width:200px">
+              <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);stroke:var(--text-hint);pointer-events:none"></i>
+              <input class="search-input-bar" id="inv-search" placeholder="모델명, 일련번호, 색상 검색" oninput="loadInventory()" style="width:100%;padding-left:32px"/>
+            </div>
+            <input type="date" class="filter-select" id="inv-date-from" onchange="loadInventory()" style="min-width:130px"/>
+            <span style="font-size:12px;color:var(--text-hint)">~</span>
+            <input type="date" class="filter-select" id="inv-date-to" onchange="loadInventory()" style="min-width:130px"/>
+            <select class="filter-select" id="inv-filter-status" onchange="loadInventory()">
+              <option value="">전체 상태</option>
+              <option value="재고">재고</option>
+              <option value="출고중">출고중</option>
+              <option value="개통">개통</option>
+              <option value="숨김">숨김</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="invResetFilter()" style="display:flex;align-items:center;gap:4px">
+              <i data-lucide="rotate-ccw" style="width:12px;height:12px"></i> 초기화
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>상태</th><th>입고일</th><th>경과</th><th>모델명</th>
+                  <th>일련번호</th><th>색상</th><th>재고위치</th><th>출고일</th>
+                  <th>출고점명</th><th>개통일</th><th>개통점</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="inv-tbody"><tr><td colspan="12" class="loading">로딩중...</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -918,7 +951,7 @@ function showPage(name) {
   const map = {dashboard:0,'stock-in':1,inventory:2,orders:3,partners:4,settlement:5,models:6,members:7};
   if (map[name] !== undefined) items[map[name]].classList.add('active');
   if (name === 'dashboard') loadDashboard();
-  if (name === 'inventory') loadInventory();
+  if (name === 'inventory') { loadInventory(); loadInvSummary(); }
   if (name === 'stock-in') {
     loadSIModels();
     document.getElementById('si-date').value = new Date().toISOString().split('T')[0];
@@ -1027,7 +1060,78 @@ function calcDays(d) {
   return `<span style="${color}">${diff}일</span>`;
 }
 
-function invResetFilter() {
+function switchInvTab(tab) {
+  document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('inv-tab-' + tab).classList.add('active');
+  document.getElementById('inv-panel-summary').style.display = tab === 'summary' ? '' : 'none';
+  document.getElementById('inv-panel-list').style.display = tab === 'list' ? '' : 'none';
+  if (tab === 'summary') loadInvSummary();
+  if (tab === 'list') loadInventory();
+  setTimeout(() => lucide.createIcons(), 30);
+}
+
+// 현황표 순서 저장 (로컬스토리지)
+function getInvSummaryOrder() {
+  try { return JSON.parse(localStorage.getItem('inv-summary-order') || '[]'); } catch { return []; }
+}
+function saveInvSummaryOrder(order) {
+  localStorage.setItem('inv-summary-order', JSON.stringify(order));
+}
+
+async function loadInvSummary() {
+  const { data: inv } = await sb.from('inventory').select('model, color, status');
+  if (!inv) return;
+  // 모델+색상별 집계
+  const map = {};
+  inv.forEach(i => {
+    const key = `${i.model}||${i.color||'-'}`;
+    if (!map[key]) map[key] = { model: i.model, color: i.color||'-', stock:0, hidden:0, out:0, done:0, total:0 };
+    map[key].total++;
+    if (i.status === '재고') map[key].stock++;
+    else if (i.status === '숨김') map[key].hidden++;
+    else if (i.status === '출고중') map[key].out++;
+    else if (i.status === '개통') map[key].done++;
+  });
+
+  // 저장된 순서 적용
+  const savedOrder = getInvSummaryOrder();
+  let rows = Object.values(map);
+  if (savedOrder.length) {
+    rows.sort((a, b) => {
+      const ai = savedOrder.indexOf(`${a.model}||${a.color}`);
+      const bi = savedOrder.indexOf(`${b.model}||${b.color}`);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+
+  const tbody = document.getElementById('inv-summary-tbody');
+  tbody.innerHTML = rows.map((r, i) => `<tr draggable="true" data-key="${r.model}||${r.color}">
+    <td style="text-align:center;color:var(--text-hint);cursor:grab;font-size:16px;padding:0 8px" class="drag-handle">⠿</td>
+    <td style="font-family:monospace;font-weight:700;color:var(--primary)">${r.model}</td>
+    <td style="font-size:13px">${r.color}</td>
+    <td style="font-weight:700;color:var(--primary);text-align:center">${r.stock}</td>
+    <td style="color:var(--text-hint);text-align:center">${r.hidden}</td>
+    <td style="color:var(--orange);text-align:center">${r.out}</td>
+    <td style="color:var(--green);text-align:center">${r.done}</td>
+    <td style="font-weight:600;text-align:center">${r.total}</td>
+  </tr>`).join('');
+
+  initDragSort();
+}
+
+function initDragSort() {
+  const tbody = document.getElementById('inv-summary-tbody');
+  let dragSrc = null;
+  tbody.querySelectorAll('tr').forEach(row => {
+    row.addEventListener('dragstart', e => { dragSrc = row; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    row.addEventListener('dragend', () => { row.classList.remove('dragging'); tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over')); saveInvSummaryOrder([...tbody.querySelectorAll('tr')].map(r => r.dataset.key)); });
+    row.addEventListener('dragover', e => { e.preventDefault(); tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over')); row.classList.add('drag-over'); });
+    row.addEventListener('drop', e => { e.preventDefault(); if (dragSrc !== row) { const rows = [...tbody.querySelectorAll('tr')]; const si = rows.indexOf(dragSrc); const di = rows.indexOf(row); if (si < di) row.after(dragSrc); else row.before(dragSrc); } });
+  });
+}
   ['inv-date-from','inv-date-to','inv-filter-status','inv-search'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   document.getElementById('isc-all').classList.add('active');
