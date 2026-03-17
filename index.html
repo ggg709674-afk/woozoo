@@ -889,17 +889,19 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <i data-lucide="save" style="width:14px;height:14px"></i> 저장
         </button>
       </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <!-- 모델 목록 -->
-        <div class="card" style="width:160px;flex-shrink:0;padding:8px;margin-bottom:0">
-          <div style="font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:.8px;padding:4px 8px 8px;text-transform:uppercase">모델</div>
-          <div id="support-model-list"><div class="loading">로딩중...</div></div>
+      <!-- 모델 드롭다운 -->
+      <div class="card" style="margin-bottom:12px;padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:13px;font-weight:700;color:var(--text-sub);white-space:nowrap">모델 선택</span>
+          <select class="select" id="support-model-select" onchange="selectSupportModel(this.value)" style="width:220px">
+            <option value="">-- 모델을 선택하세요 --</option>
+          </select>
         </div>
-        <!-- 요금제별 지원금 -->
-        <div class="card" style="flex:1;padding:0;overflow:hidden;margin-bottom:0">
-          <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
-            왼쪽에서 모델을 선택하세요
-          </div>
+      </div>
+      <!-- 요금제별 지원금 -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
+          위에서 모델을 선택하세요
         </div>
       </div>
     </div>
@@ -2185,27 +2187,17 @@ async function loadSupport() {
 }
 
 function renderSupportModelList() {
-  const el = document.getElementById('support-model-list');
-  if (!supportModels.length) { el.innerHTML = '<div class="empty" style="padding:12px;font-size:12px">모델 없음</div>'; return; }
-  el.innerHTML = supportModels.map(m => `
-    <div id="support-m-${m.code}" onclick="selectSupportModel('${m.code}')"
-      style="padding:9px 12px;font-size:13px;font-weight:600;border-radius:var(--radius-xs);cursor:pointer;transition:all .15s;color:var(--text-sub)">
-      ${m.code}
-    </div>
-  `).join('');
+  const el = document.getElementById('support-model-select');
+  if (!el) return;
+  el.innerHTML = '<option value="">-- 모델을 선택하세요 --</option>';
+  supportModels.forEach(m => {
+    el.innerHTML += `<option value="${m.code}">${m.code}</option>`;
+  });
 }
 
 async function selectSupportModel(code) {
+  if (!code) return;
   supportSelectedModel = code;
-
-  // 활성 스타일
-  document.querySelectorAll('#support-model-list > div').forEach(el => {
-    el.style.background = '';
-    el.style.color = 'var(--text-sub)';
-    el.style.fontWeight = '600';
-  });
-  const active = document.getElementById('support-m-' + code);
-  if (active) { active.style.background = 'var(--primary-light)'; active.style.color = 'var(--primary)'; }
 
   // 저장 버튼 표시
   const btn = document.getElementById('support-save-btn');
@@ -2251,7 +2243,7 @@ function renderSupportTable(code) {
 
   groupOrder.forEach(group => {
     if (!groups[group]) return;
-    html += `<tr><td colspan="3" style="padding:6px 14px;background:var(--border-light);font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:.5px">${group}</td></tr>`;
+    html += `<tr><td colspan="3" style="padding:4px 0;background:var(--border-light);font-size:1px">&nbsp;</td></tr>`;
     groups[group].forEach(p => {
       const val = supportData[p.id] || '';
       html += `
