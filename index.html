@@ -878,6 +878,32 @@ tr.drag-over { border-top:2px solid var(--primary); }
       </div>
     </div>
 
+    <!-- 공통지원금 -->
+    <div class="page" id="page-support">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div class="page-title">공통지원금</div>
+          <div class="page-sub">모델별 요금제 공통지원금 관리</div>
+        </div>
+        <button class="btn btn-primary" id="support-save-btn" onclick="saveSupport()" style="display:none;align-items:center;gap:6px">
+          <i data-lucide="save" style="width:14px;height:14px"></i> 저장
+        </button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <!-- 모델 목록 -->
+        <div class="card" style="width:160px;flex-shrink:0;padding:8px;margin-bottom:0">
+          <div style="font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:.8px;padding:4px 8px 8px;text-transform:uppercase">모델</div>
+          <div id="support-model-list"><div class="loading">로딩중...</div></div>
+        </div>
+        <!-- 요금제별 지원금 -->
+        <div class="card" style="flex:1;padding:0;overflow:hidden;margin-bottom:0">
+          <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
+            왼쪽에서 모델을 선택하세요
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <!-- 요금제 모달 -->
@@ -1111,6 +1137,7 @@ function showPage(name) {
   if (name === 'partners') loadPartners();
   if (name === 'models') loadModels();
   if (name === 'plans') loadPlans();
+  if (name === 'support') loadSupport();
   if (name === 'members') loadMembers();
   if (name === 'settlement') loadSettlement();
 }
@@ -2140,7 +2167,136 @@ async function loadTkeyFile(input) {
   input.value = '';
 }
 
-// ─── 요금제 관리 ───
+// ─── 공통지원금 ───
+let supportModels = [];
+let supportPlans = [];
+let supportData = {};
+let supportSelectedModel = null;
+
+async function loadSupport() {
+  // 모델 + 요금제 동시 로드
+  const [{ data: models }, { data: plans }] = await Promise.all([
+    sb.from('models').select('code').eq('is_active', true).order('code'),
+    sb.from('plans').select('id,name,plan_group,monthly_fee').eq('is_active', true).order('sort_order')
+  ]);
+  supportModels = models || [];
+  supportPlans = plans || [];
+  renderSupportModelList();
+}
+
+function renderSupportModelList() {
+  const el = document.getElementById('support-model-list');
+  if (!supportModels.length) { el.innerHTML = '<div class="empty" style="padding:12px;font-size:12px">모델 없음</div>'; return; }
+  el.innerHTML = supportModels.map(m => `
+    <div id="support-m-${m.code}" onclick="selectSupportModel('${m.code}')"
+      style="padding:9px 12px;font-size:13px;font-weight:600;border-radius:var(--radius-xs);cursor:pointer;transition:all .15s;color:var(--text-sub)">
+      ${m.code}
+    </div>
+  `).join('');
+}
+
+async function selectSupportModel(code) {
+  supportSelectedModel = code;
+
+  // 활성 스타일
+  document.querySelectorAll('#support-model-list > div').forEach(el => {
+    el.style.background = '';
+    el.style.color = 'var(--text-sub)';
+    el.style.fontWeight = '600';
+  });
+  const active = document.getElementById('support-m-' + code);
+  if (active) { active.style.background = 'var(--primary-light)'; active.style.color = 'var(--primary)'; }
+
+  // 저장 버튼 표시
+  const btn = document.getElementById('support-save-btn');
+  btn.style.display = 'inline-flex';
+  lucide.createIcons();
+
+  // 해당 모델 지원금 로드
+  const { data } = await sb.from('support_amount').select('plan_id,amount').eq('model_code', code);
+  supportData = {};
+  data?.forEach(d => { supportData[d.plan_id] = d.amount; });
+
+  renderSupportTable(code);
+}
+
+function renderSupportTable(code) {
+  const wrap = document.getElementById('support-table-wrap');
+
+  // 요금제군별 그룹핑
+  const groups = {};
+  supportPlans.forEach(p => {
+    if (!groups[p.plan_group]) groups[p.plan_group] = [];
+    groups[p.plan_group].push(p);
+  });
+
+  const groupOrder = ['프리미엄','I_100','F_79','L_69','M_50','R_43','S_33'];
+
+  let html = `
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">${code} <span style="font-size:12px;font-weight:500;color:var(--text-hint)">공통지원금</span></div>
+      <div style="font-size:12px;color:var(--text-hint)">요금제 ${supportPlans.length}개</div>
+    </div>
+    <div style="overflow-y:auto;max-height:calc(100vh - 260px)">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--border-light)">
+          <th style="padding:8px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-hint);width:50%">요금제명</th>
+          <th style="padding:8px 14px;text-align:center;font-size:11px;font-weight:700;color:var(--text-hint);width:20%">요금제군</th>
+          <th style="padding:8px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--text-hint);width:30%">공통지원금 (원)</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  groupOrder.forEach(group => {
+    if (!groups[group]) return;
+    html += `<tr><td colspan="3" style="padding:6px 14px;background:var(--border-light);font-size:11px;font-weight:700;color:var(--text-hint);letter-spacing:.5px">${group}</td></tr>`;
+    groups[group].forEach(p => {
+      const val = supportData[p.id] || '';
+      html += `
+        <tr style="border-bottom:1px solid var(--border-light)" onmouseover="this.style.background='#F5F7FF'" onmouseout="this.style.background=''">
+          <td style="padding:8px 14px;font-weight:500">${p.name}</td>
+          <td style="padding:8px 14px;text-align:center"><span style="font-size:11px;font-weight:700;background:var(--purple-bg);color:var(--purple);padding:2px 8px;border-radius:100px">${p.plan_group}</span></td>
+          <td style="padding:6px 14px;text-align:right">
+            <input type="number" data-plan-id="${p.id}" value="${val}"
+              style="width:120px;height:32px;border:1.5px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;font-weight:700;text-align:right;outline:none;font-family:inherit;transition:border-color .15s;color:var(--primary)"
+              placeholder="0"
+              onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px rgba(79,142,247,.08)'"
+              onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
+              oninput="supportData['${p.id}']=this.value"/>
+          </td>
+        </tr>`;
+    });
+  });
+
+  html += `</tbody></table></div>`;
+  wrap.innerHTML = html;
+}
+
+async function saveSupport() {
+  if (!supportSelectedModel) return;
+  const btn = document.getElementById('support-save-btn');
+  btn.textContent = '저장중...';
+  btn.disabled = true;
+
+  const upserts = [];
+  document.querySelectorAll('#support-table-wrap input[data-plan-id]').forEach(input => {
+    const planId = input.getAttribute('data-plan-id');
+    const amount = parseInt(input.value) || 0;
+    upserts.push({ model_code: supportSelectedModel, plan_id: planId, amount });
+  });
+
+  const { error } = await sb.from('support_amount').upsert(upserts, { onConflict: 'model_code,plan_id' });
+
+  btn.innerHTML = '<i data-lucide="save" style="width:14px;height:14px"></i> 저장';
+  btn.disabled = false;
+  lucide.createIcons();
+
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  toast('✓ 저장 완료');
+}
+</script>
 let plansCache = [];
 
 async function loadPlans() {
