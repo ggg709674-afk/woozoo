@@ -1068,7 +1068,7 @@ function enterApp(email) {
   setTimeout(() => {
     lucide.createIcons();
     const hash = location.hash.replace('#', '');
-    const validPages = ['dashboard','stock-in','inventory','orders','partners','settlement','models','plans','members'];
+    const validPages = ['dashboard','stock-in','inventory','orders','partners','settlement','models','plans','support','members'];
     if (hash && validPages.includes(hash)) {
       showPage(hash);
     } else {
@@ -2233,9 +2233,9 @@ function renderSupportTable(code) {
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:var(--border-light)">
-          <th style="padding:8px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-hint);width:50%">요금제명</th>
-          <th style="padding:8px 14px;text-align:center;font-size:11px;font-weight:700;color:var(--text-hint);width:20%">요금제군</th>
-          <th style="padding:8px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--text-hint);width:30%">공통지원금 (원)</th>
+          <th style="padding:5px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-hint);width:50%">요금제명</th>
+          <th style="padding:5px 14px;text-align:center;font-size:11px;font-weight:700;color:var(--text-hint);width:20%">요금제군</th>
+          <th style="padding:5px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--text-hint);width:30%">공통지원금 (원)</th>
         </tr>
       </thead>
       <tbody>
@@ -2248,11 +2248,11 @@ function renderSupportTable(code) {
       const val = supportData[p.id] || '';
       html += `
         <tr style="border-bottom:1px solid var(--border-light)" onmouseover="this.style.background='#F5F7FF'" onmouseout="this.style.background=''">
-          <td style="padding:8px 14px;font-weight:500">${p.name}</td>
-          <td style="padding:8px 14px;text-align:center"><span style="font-size:11px;font-weight:700;background:var(--purple-bg);color:var(--purple);padding:2px 8px;border-radius:100px">${p.plan_group}</span></td>
-          <td style="padding:6px 14px;text-align:right">
+          <td style="padding:5px 14px;font-weight:500">${p.name}</td>
+          <td style="padding:5px 14px;text-align:center"><span style="font-size:11px;font-weight:700;background:var(--purple-bg);color:var(--purple);padding:2px 8px;border-radius:100px">${p.plan_group}</span></td>
+          <td style="padding:3px 14px;text-align:right">
             <input type="number" data-plan-id="${p.id}" value="${val}"
-              style="width:120px;height:32px;border:1.5px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;font-weight:700;text-align:right;outline:none;font-family:inherit;transition:border-color .15s;color:var(--primary)"
+              style="width:120px;height:28px;border:1.5px solid var(--border);border-radius:6px;padding:0 10px;font-size:13px;font-weight:700;text-align:right;outline:none;font-family:inherit;transition:border-color .15s;color:var(--primary)"
               placeholder="0"
               onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px rgba(79,142,247,.08)'"
               onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
