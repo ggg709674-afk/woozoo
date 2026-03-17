@@ -2170,7 +2170,7 @@ function renderPlansTable() {
           <span style="color:${p.is_active ? 'var(--green)' : 'var(--text-hint)'}">${p.is_active ? '활성' : '비활성'}</span>
         </label>
       </td>
-      <td>
+      <td style="white-space:nowrap">
         <div style="display:flex;gap:6px">
           <button class="btn btn-outline btn-sm" onclick="openEditPlan(${i})">수정</button>
           <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">삭제</button>
