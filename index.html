@@ -1426,7 +1426,10 @@ partnerDdEl.innerHTML = `<input class="model-dd-search" id="partner-dd-search" p
 document.body.appendChild(partnerDdEl);
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('.model-dd-popup') && !e.target.classList.contains('stl-input')) modelDdEl.classList.remove('open');
+  if (!e.target.closest('.model-dd-popup') && !e.target.classList.contains('stl-input')) {
+    modelDdEl.classList.remove('open');
+    partnerDdEl.classList.remove('open');
+  }
 });
 
 function openPartnerDd(i, input) {
@@ -1470,10 +1473,6 @@ const modelDdEl = document.createElement('div');
 modelDdEl.className = 'model-dd-popup';
 modelDdEl.innerHTML = `<input class="model-dd-search" id="model-dd-search" placeholder="검색..." oninput="filterModelDd(this.value)" onkeydown="modelDdKey(event)"/><div class="model-dd-list" id="model-dd-list"></div>`;
 document.body.appendChild(modelDdEl);
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.model-dd-popup') && !e.target.classList.contains('stl-input')) modelDdEl.classList.remove('open');
-});
 
 function openModelDd(i, input) {
   modelDdTarget = { i, input };
