@@ -347,6 +347,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
       <div class="nav-item" onclick="showPage('settlement')"><span class="nav-icon"><i data-lucide="calculator"></i></span> 정산 관리</div>
       <div class="nav-section">설정</div>
       <div class="nav-item" onclick="showPage('models')"><span class="nav-icon"><i data-lucide="smartphone"></i></span> 모델 관리</div>
+      <div class="nav-item" onclick="showPage('plans')"><span class="nav-icon"><i data-lucide="receipt-text"></i></span> 요금제 관리</div>
       <div class="nav-item" onclick="showPage('members')"><span class="nav-icon"><i data-lucide="users"></i></span> 회원 관리</div>
     </nav>
     <div class="sidebar-bottom">
@@ -749,6 +750,36 @@ tr.drag-over { border-top:2px solid var(--primary); }
       </div>
     </div>
 
+    <!-- 요금제 관리 -->
+    <div class="page" id="page-plans">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">요금제 관리</div>
+          <div class="page-sub">SKT 요금제 등록 및 관리</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddPlan()" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 요금제 추가
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>요금제명</th>
+                <th>기본요금</th>
+                <th>요금제군</th>
+                <th>상태</th>
+                <th style="width:100px">관리</th>
+              </tr>
+            </thead>
+            <tbody id="plan-tbody"><tr><td colspan="6" class="loading">로딩중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- 회원 관리 -->
     <div class="page" id="page-members">
       <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
@@ -849,6 +880,39 @@ tr.drag-over { border-top:2px solid var(--primary); }
 
   </div>
 </div>
+<!-- 요금제 모달 -->
+<div class="modal-overlay" id="plan-modal">
+  <div class="modal" style="width:440px">
+    <div class="modal-title" id="plan-modal-title">요금제 추가</div>
+    <input type="hidden" id="pl-id"/>
+    <div class="modal-field">
+      <label class="modal-label">요금제명 *</label>
+      <input class="modal-input" id="pl-name" placeholder="예) 5GX 프리미어"/>
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label class="modal-label">기본요금 (원) *</label>
+        <input class="modal-input" id="pl-fee" type="number" placeholder="예) 89000"/>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">요금제군 *</label>
+        <select class="modal-input" id="pl-group" style="cursor:pointer;appearance:none">
+          <option value="">선택</option>
+          <option value="1군">1군</option>
+          <option value="2군">2군</option>
+          <option value="3군">3군</option>
+          <option value="4군">4군</option>
+          <option value="5군">5군</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal('plan-modal')">취소</button>
+      <button class="btn btn-primary" onclick="savePlan()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="model-modal">
   <div class="modal" style="width:520px">
     <div class="modal-title" id="model-modal-title">모델 추가</div>
@@ -1035,6 +1099,7 @@ function showPage(name) {
   if (name === 'orders') loadOrders();
   if (name === 'partners') loadPartners();
   if (name === 'models') loadModels();
+  if (name === 'plans') loadPlans();
   if (name === 'members') loadMembers();
   if (name === 'settlement') loadSettlement();
 }
@@ -2061,6 +2126,101 @@ async function loadTkeyFile(input) {
   }
   renderSettlTable();
   input.value = '';
+}
+
+// ─── 요금제 관리 ───
+let plansCache = [];
+
+async function loadPlans() {
+  const tbody = document.getElementById('plan-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">로딩중...</td></tr>';
+  const { data, error } = await sb.from('plans').select('*').order('sort_order').order('created_at');
+  if (error) { tbody.innerHTML = '<tr><td colspan="6" class="empty">불러오기 실패</td></tr>'; return; }
+  plansCache = data || [];
+  renderPlansTable();
+}
+
+function renderPlansTable() {
+  const tbody = document.getElementById('plan-tbody');
+  if (!tbody) return;
+  if (!plansCache.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 요금제가 없어요</td></tr>'; return; }
+  tbody.innerHTML = plansCache.map((p, i) => `
+    <tr>
+      <td style="color:var(--text-hint);font-size:12px;text-align:center">${i+1}</td>
+      <td style="font-weight:600">${p.name}</td>
+      <td>${p.monthly_fee ? p.monthly_fee.toLocaleString() + '원' : '-'}</td>
+      <td><span class="badge" style="background:var(--purple-bg);color:var(--purple)">${p.plan_group || '-'}</span></td>
+      <td>
+        <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+          <input type="checkbox" ${p.is_active ? 'checked' : ''} onchange="togglePlan('${p.id}', this.checked)"
+            style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)"/>
+          <span style="color:${p.is_active ? 'var(--green)' : 'var(--text-hint)'}">${p.is_active ? '활성' : '비활성'}</span>
+        </label>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="openEditPlan(${i})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">삭제</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAddPlan() {
+  document.getElementById('plan-modal-title').textContent = '요금제 추가';
+  document.getElementById('pl-id').value = '';
+  document.getElementById('pl-name').value = '';
+  document.getElementById('pl-fee').value = '';
+  document.getElementById('pl-group').value = '';
+  openModal('plan-modal');
+}
+
+function openEditPlan(i) {
+  const p = plansCache[i];
+  document.getElementById('plan-modal-title').textContent = '요금제 수정';
+  document.getElementById('pl-id').value = p.id;
+  document.getElementById('pl-name').value = p.name;
+  document.getElementById('pl-fee').value = p.monthly_fee || '';
+  document.getElementById('pl-group').value = p.plan_group || '';
+  openModal('plan-modal');
+}
+
+async function savePlan() {
+  const id = document.getElementById('pl-id').value;
+  const name = document.getElementById('pl-name').value.trim();
+  const fee = parseInt(document.getElementById('pl-fee').value) || 0;
+  const group = document.getElementById('pl-group').value;
+  if (!name) { toast('요금제명을 입력해주세요'); return; }
+  if (!group) { toast('요금제군을 선택해주세요'); return; }
+  const payload = { name, monthly_fee: fee, plan_group: group };
+  let error;
+  if (id) {
+    ({ error } = await sb.from('plans').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('plans').insert(payload));
+  }
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  closeModal('plan-modal');
+  toast(id ? '✓ 요금제 수정 완료' : '✓ 요금제 추가 완료');
+  loadPlans();
+}
+
+async function togglePlan(id, active) {
+  const { error } = await sb.from('plans').update({ is_active: active }).eq('id', id);
+  if (error) { toast('변경 실패'); loadPlans(); return; }
+  const p = plansCache.find(p => p.id === id);
+  if (p) p.is_active = active;
+  renderPlansTable();
+}
+
+async function deletePlan(id) {
+  if (!confirm('요금제를 삭제하면 연결된 공통지원금도 삭제됩니다. 계속할까요?')) return;
+  const { error } = await sb.from('plans').delete().eq('id', id);
+  if (error) { toast('삭제 실패: ' + error.message); return; }
+  toast('✓ 삭제 완료');
+  loadPlans();
 }
 </script>
 </body>
