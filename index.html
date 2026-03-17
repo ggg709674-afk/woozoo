@@ -403,16 +403,19 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 입고 등록 -->
     <div class="page" id="page-stock-in">
-      <div class="page-header">
-        <div class="page-title">입고 등록</div>
-        <div class="page-sub">바코드 스캔으로 빠르게 입고 등록</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">입고 등록</div>
+          <div class="page-sub">바코드 스캔으로 빠르게 입고 등록</div>
+        </div>
+        <span style="font-size:12px;color:var(--text-hint);font-weight:600" id="si-stat">0개 · 완료 0개</span>
       </div>
-      <div class="add-panel">
-        <div class="panel-row">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
           <div class="panel-field">
             <div class="panel-label">모델명 검색</div>
             <div class="search-wrap">
-              <input class="search-input" id="si-model-search" placeholder="예) 아이폰16, S25" autocomplete="off" oninput="siFilterModels()" onfocus="siOpenDd()" onkeydown="siHandleKey(event)"/>
+              <input class="search-input" id="si-model-search" placeholder="모델명 검색" autocomplete="off" oninput="siFilterModels()" onfocus="siOpenDd()" onkeydown="siHandleKey(event)"/>
               <div class="dropdown" id="si-dd"></div>
             </div>
             <div class="sel-model-badge" id="si-sel-badge">
@@ -434,14 +437,18 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
           </div>
           <div class="panel-field">
             <div class="panel-label">&nbsp;</div>
-            <button class="btn btn-primary" onclick="siGenRows()">+ 행 생성</button>
+            <button class="btn btn-primary" onclick="siGenRows()" style="display:flex;align-items:center;gap:6px">
+              <i data-lucide="plus" style="width:14px;height:14px"></i> 행 생성
+            </button>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <div class="card-title">입고 목록 <span class="card-title-sub" id="si-stat">0개 · 완료 0개</span></div>
-          <button class="btn btn-dark" onclick="siSaveAll()">💾 재고 등록</button>
+          <div class="card-title">입고 목록</div>
+          <button class="btn btn-dark" onclick="siSaveAll()" style="display:flex;align-items:center;gap:6px">
+            <i data-lucide="save" style="width:14px;height:14px"></i> 재고 등록
+          </button>
         </div>
         <div class="table-wrap">
           <table>
@@ -558,24 +565,26 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 주문 처리 -->
     <div class="page" id="page-orders">
-      <div class="page-header">
-        <div class="page-title">주문 처리</div>
-        <div class="page-sub">들어온 주문을 확인하고 처리하세요</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">주문 처리</div>
+          <div class="page-sub">들어온 주문을 확인하고 처리하세요</div>
+        </div>
       </div>
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">주문 목록</div>
-          <div class="search-bar">
-            <select class="filter-select" id="ord-filter" onchange="loadOrders()">
-              <option value="">전체 상태</option>
-              <option value="접수대기">접수대기</option>
-              <option value="접수완료">접수완료</option>
-              <option value="출고">출고</option>
-              <option value="개통">개통</option>
-              <option value="취소">취소</option>
-            </select>
-            <input class="search-input-bar" id="ord-search" placeholder="🔍 고객명, 모델명 검색" oninput="loadOrders()" style="min-width:190px"/>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border-light);margin-bottom:12px">
+          <div style="position:relative;flex:1;min-width:200px">
+            <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);stroke:var(--text-hint);pointer-events:none"></i>
+            <input class="search-input-bar" id="ord-search" placeholder="고객명, 모델명 검색" oninput="loadOrders()" style="width:100%;padding-left:32px"/>
           </div>
+          <select class="filter-select" id="ord-filter" onchange="loadOrders()">
+            <option value="">전체 상태</option>
+            <option value="접수대기">접수대기</option>
+            <option value="접수완료">접수완료</option>
+            <option value="출고">출고</option>
+            <option value="개통">개통</option>
+            <option value="취소">취소</option>
+          </select>
         </div>
         <div class="table-wrap">
           <table>
@@ -588,15 +597,16 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 거래처 관리 -->
     <div class="page" id="page-partners">
-      <div class="page-header">
-        <div class="page-title">거래처 관리</div>
-        <div class="page-sub">거래처 등록 및 주문링크 관리</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">거래처 관리</div>
+          <div class="page-sub">거래처 등록 및 주문링크 관리</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddPartner()" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 거래처 추가
+        </button>
       </div>
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">거래처 목록</div>
-          <button class="btn btn-primary" onclick="openAddPartner()">+ 거래처 추가</button>
-        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>거래처명</th><th>슬러그 (주문링크)</th><th>등록일</th><th>주문링크</th></tr></thead>
@@ -608,15 +618,16 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 모델 관리 -->
     <div class="page" id="page-models">
-      <div class="page-header">
-        <div class="page-title">모델 관리</div>
-        <div class="page-sub">판매 모델 및 색상 등록 관리</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">모델 관리</div>
+          <div class="page-sub">판매 모델 및 색상 등록 관리</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModel()" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 모델 추가
+        </button>
       </div>
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">모델 목록</div>
-          <button class="btn btn-primary" onclick="openAddModel()">+ 모델 추가</button>
-        </div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -627,7 +638,7 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
                 <th>단가</th><th>상태</th><th>관리</th>
               </tr>
             </thead>
-            <tbody id="model-tbody"><tr><td colspan="9" class="loading">로딩중...</td></tr></tbody>
+            <tbody id="model-tbody"><tr><td colspan="10" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -635,19 +646,18 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 회원 관리 -->
     <div class="page" id="page-members">
-      <div class="page-header">
-        <div class="page-title">회원 관리</div>
-        <div class="page-sub">직원 가입 승인 및 권한 관리</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">회원 관리</div>
+          <div class="page-sub">직원 가입 승인 및 권한 관리</div>
+        </div>
+        <select class="filter-select" id="mem-filter" onchange="loadMembers()">
+          <option value="">전체</option>
+          <option value="false">승인대기</option>
+          <option value="true">승인완료</option>
+        </select>
       </div>
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">회원 목록</div>
-          <select class="filter-select" id="mem-filter" onchange="loadMembers()">
-            <option value="">전체</option>
-            <option value="false">승인대기</option>
-            <option value="true">승인완료</option>
-          </select>
-        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>이름</th><th>이메일</th><th>역할</th><th>가입일</th><th>상태</th><th>관리</th></tr></thead>
@@ -659,24 +669,26 @@ tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
 
     <!-- 정산 관리 -->
     <div class="page" id="page-settlement">
-      <div class="page-header">
-        <div class="page-title">정산 관리</div>
-        <div class="page-sub">개통 정산 내역 관리</div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">정산 관리</div>
+          <div class="page-sub">개통 정산 내역 관리</div>
+        </div>
+        <button class="btn btn-primary" onclick="settlAddRow()" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 행 추가
+        </button>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div>
-              <div class="card-title" style="margin-bottom:2px">T키 파일 업로드</div>
-              <div style="font-size:11px;color:var(--text-hint)">업로드 시 서비스관리번호·T-GATE접수일시 자동 입력</div>
-            </div>
-            <label style="display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;height:36px;padding:0 16px;border-radius:var(--radius-xs);cursor:pointer;font-size:13px;font-weight:600">
-              📂 T키 업로드
-              <input type="file" accept=".xlsx,.xls" id="tkey-file" style="display:none" onchange="loadTkeyFile(this)"/>
-            </label>
-            <span id="tkey-status" style="font-size:12px;color:var(--text-hint)"></span>
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">T키 파일 업로드</div>
+            <div style="font-size:11px;color:var(--text-hint)">업로드 시 서비스관리번호·T-GATE접수일시 자동 입력</div>
           </div>
-          <button class="btn btn-primary" onclick="settlAddRow()">+ 행 추가</button>
+          <label style="display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;height:36px;padding:0 16px;border-radius:var(--radius-xs);cursor:pointer;font-size:13px;font-weight:600">
+            <i data-lucide="upload" style="width:14px;height:14px"></i> T키 업로드
+            <input type="file" accept=".xlsx,.xls" id="tkey-file" style="display:none" onchange="loadTkeyFile(this)"/>
+          </label>
+          <span id="tkey-status" style="font-size:12px;color:var(--text-hint)"></span>
         </div>
       </div>
       <div class="card" style="padding:0;overflow:hidden;border:1px solid var(--border)">
