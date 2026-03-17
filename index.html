@@ -1378,7 +1378,10 @@ function renderSettlTable() {
       <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" placeholder="-" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
       <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.tgate||''}" placeholder="-" oninput="settlUpdate(${i},'tgate',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.policy||''}" oninput="settlUpdate(${i},'policy',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" type="date" value="${r.act_date||''}" style="padding:0 4px" onchange="settlUpdate(${i},'act_date',this.value)" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'; this.setAttribute('data-display', fmtActDate(this.value))"/></td>
+      <td class="stl-td" style="position:relative">
+        <input class="stl-input" type="date" value="${r.act_date||''}" style="opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer" onchange="settlUpdate(${i},'act_date',this.value);this.previousElementSibling.textContent=this.value?new Date(this.value+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/')replace('일',''):''"/>
+        <span style="pointer-events:none;padding:0 7px;font-size:12px">${r.act_date ? new Date(r.act_date+'T00:00:00').toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}).replace(/ /g,'').replace('월','/').replace('일','') : ''}</span>
+      </td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'policy_type',this.value)">
           <option value="">-</option>
