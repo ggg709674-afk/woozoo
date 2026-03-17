@@ -1521,6 +1521,9 @@ async function loadSettlement() {
   ]);
   settlModels = models || [];
   settlPartners = partners || [];
+  if (settlRows.length === 0) {
+    for (let i = 0; i < 10; i++) settlRows.push({});
+  }
   renderSettlTable();
 }
 
@@ -1542,18 +1545,12 @@ function fmtActDate(v) {
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
 
-function renderSettlTable() {
-  const tbody = document.getElementById('settl-tbody');
-  if (!settlRows.length) {
-    tbody.innerHTML = '<tr><td colspan="32" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>';
-    return;
-  }
-  tbody.innerHTML = settlRows.map((r, i) => {
+function buildSettlRow(i, r) {
     const matchBadge = r.matched === true ? '<span class="match-ok">✓</span>' : r.matched === false ? '<span class="match-no">✗</span>' : '';
     const price = r.model ? getSettlPrice(r.model) : 0;
     const autoSvc = r.tkey ? 'stl-auto' : '';
     const actDisplay = r.act_date ? (() => { const d = new Date(r.act_date+'T00:00:00'); return `${d.getMonth()+1}/${d.getDate()}`; })() : '';
-    return `<tr>
+    return `
       <td class="stl-td" style="position:sticky;left:0;background:var(--white);z-index:1;font-size:11px;color:var(--text-hint);font-weight:700;text-align:center;width:28px">${i+1}</td>
       <td class="stl-td" style="text-align:center;width:36px">${matchBadge}</td>
       <td class="stl-td"><input class="stl-input ${autoSvc}" value="${r.svc_no||''}" oninput="settlUpdate(${i},'svc_no',this.value)"/></td>
@@ -1633,8 +1630,16 @@ function renderSettlTable() {
       </td>
       <td class="stl-td"><input class="stl-input" value="${r.memo||''}" oninput="settlUpdate(${i},'memo',this.value)"/></td>
       <td class="stl-td" style="text-align:center;width:28px"><button style="background:none;border:none;color:var(--text-hint);cursor:pointer;font-size:16px;padding:0 4px" onclick="settlRemoveRow(${i})">×</button></td>
-    </tr>`;
-  }).join('');
+    `;
+}
+
+function renderSettlTable() {
+  const tbody = document.getElementById('settl-tbody');
+  if (!settlRows.length) {
+    tbody.innerHTML = '<tr><td colspan="32" class="empty">행 추가 또는 T키 파일을 업로드하세요</td></tr>';
+    return;
+  }
+  tbody.innerHTML = settlRows.map((r, i) => `<tr>${buildSettlRow(i, r)}</tr>`).join('');
 }
 
 function settlAddRow() {
@@ -1649,6 +1654,21 @@ function settlRemoveRow(i) {
 
 function settlUpdate(i, key, val) {
   settlRows[i][key] = val;
+  // 마지막 행에 입력되면 자동으로 1행 추가
+  if (i === settlRows.length - 1 && val) {
+    settlRows.push({});
+    // 새 행만 tbody에 추가 (전체 렌더링 X)
+    const tbody = document.getElementById('settl-tbody');
+    const newIdx = settlRows.length - 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = buildSettlRow(newIdx, {});
+    tbody.appendChild(tr);
+    // 행 번호 업데이트
+    tbody.querySelectorAll('tr').forEach((r, idx) => {
+      const first = r.cells[0];
+      if (first) first.textContent = idx + 1;
+    });
+  }
 }
 
 async function settlUpdateModel(i, val) {
