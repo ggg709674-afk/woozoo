@@ -714,14 +714,18 @@ tr.drag-over { border-top:2px solid var(--primary); }
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">T키 파일 업로드</div>
-            <div style="font-size:11px;color:var(--text-hint)">업로드 시 서비스관리번호·T-GATE접수일시 자동 입력</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">T키 데이터 붙여넣기</div>
+            <div style="font-size:11px;color:var(--text-hint)">엑셀에서 행 복사 후 아래 영역에 Ctrl+V</div>
           </div>
           <label style="display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;height:36px;padding:0 16px;border-radius:var(--radius-xs);cursor:pointer;font-size:13px;font-weight:600">
-            <i data-lucide="upload" style="width:14px;height:14px"></i> T키 업로드
+            <i data-lucide="upload" style="width:14px;height:14px"></i> T키 파일 업로드
             <input type="file" accept=".xlsx,.xls" id="tkey-file" style="display:none" onchange="loadTkeyFile(this)"/>
           </label>
           <span id="tkey-status" style="font-size:12px;color:var(--text-hint)"></span>
+        </div>
+        <!-- 붙여넣기 존 -->
+        <div style="margin-top:12px;position:relative">
+          <textarea id="tkey-paste-area" placeholder="엑셀에서 T키 행을 복사(Ctrl+C) 후 여기에 붙여넣기(Ctrl+V) 하세요" style="width:100%;height:60px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;font-family:inherit;resize:none;outline:none;color:var(--text);background:var(--border-light);transition:all 0.15s" onfocus="this.style.borderColor='var(--primary)';this.style.background='var(--white)'" onblur="this.style.borderColor='var(--border)';this.style.background='var(--border-light)'" onpaste="handleTkeyPaste(event)"></textarea>
         </div>
       </div>
       <div class="card" style="padding:0;overflow:hidden;border:1px solid var(--border)">
@@ -1813,8 +1817,70 @@ async function settlCheckMatch(i) {
   settlRows[i].matched = !!data;
 }
 
-// T키 엑셀 파싱
-async function loadTkeyFile(input) {
+// T키 붙여넣기 파싱
+async function handleTkeyPaste(e) {
+  e.preventDefault();
+  const text = e.clipboardData.getData('text');
+  if (!text) return;
+
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  const parsed = [];
+
+  for (const line of lines) {
+    const cols = line.split('\t');
+    // 헤더행 스킵 (첫 컬럼이 '처리구분' 이면)
+    if (cols[0].trim() === '처리구분') continue;
+    if (cols.length < 16) continue;
+
+    const svc_no = cols[5]?.trim() || '';
+    const model_raw = cols[13]?.trim() || '';
+    const serial = cols[15]?.trim() || '';
+    const tgate = cols[33]?.trim() || '';
+
+    // 모델명 변환 (SM-S948N_512GW → S948_512 형식으로)
+    parsed.push({ svc_no, model_raw, serial, tgate, tkey: true });
+  }
+
+  if (!parsed.length) { toast('파싱할 데이터가 없어요'); return; }
+
+  // 기존 행과 매칭 또는 추가
+  const existingSerials = settlRows.map(r => r.serial);
+  let added = 0, updated = 0;
+
+  for (const p of parsed) {
+    const existIdx = settlRows.findIndex(r => r.serial === p.serial);
+    if (existIdx >= 0) {
+      settlRows[existIdx].svc_no = p.svc_no;
+      settlRows[existIdx].tgate = p.tgate;
+      settlRows[existIdx].tkey = true;
+      updated++;
+    } else {
+      settlRows.push({ serial: p.serial, svc_no: p.svc_no, tgate: p.tgate, tkey: true });
+      added++;
+    }
+  }
+
+  // 재고 매칭
+  const serials = parsed.map(p => p.serial).filter(Boolean);
+  if (serials.length) {
+    const { data } = await sb.from('inventory').select('serial_number,model').in('serial_number', serials);
+    const matchMap = {};
+    data?.forEach(d => matchMap[d.serial_number] = d.model);
+    settlRows.forEach(r => {
+      if (r.serial && matchMap[r.serial] !== undefined) {
+        r.matched = true;
+        if (!r.model) r.model = matchMap[r.serial];
+      } else if (r.serial && serials.includes(r.serial)) {
+        r.matched = false;
+      }
+    });
+  }
+
+  // textarea 비우기
+  document.getElementById('tkey-paste-area').value = '';
+  renderSettlTable();
+  toast(`✓ ${added}건 추가, ${updated}건 업데이트`);
+}
   const file = input.files[0];
   if (!file) return;
   document.getElementById('tkey-status').textContent = '읽는 중...';
