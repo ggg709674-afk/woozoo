@@ -1381,7 +1381,7 @@ async function loadDashboard() {
   const cntOut = inv?.filter(i => i.status === '출고중').length || 0;
   const cntDone = inv?.filter(i => i.status === '개통').length || 0;
   const cntHidden = inv?.filter(i => i.status === '숨김').length || 0;
-  document.getElementById('s-total').textContent = cntStock;
+  document.getElementById('s-total').textContent = cntStock + cntOut + cntHidden;
   document.getElementById('s-out').textContent = cntOut;
   // 상태별 카운트 (우측 하단 카드)
   if (document.getElementById('dash-cnt-stock')) {
@@ -1643,7 +1643,7 @@ async function loadInventory() {
   // 카드 숫자는 항상 전체 기준으로 별도 조회
   const { data: allData } = await sb.from('inventory').select('status');
   const allInv = allData || [];
-  document.getElementById('inv-cnt-all').textContent = allInv.length;
+  document.getElementById('inv-cnt-all').textContent = allInv.filter(i=>i.status!=='개통').length;
   document.getElementById('inv-cnt-stock').textContent = allInv.filter(i=>i.status==='재고').length;
   document.getElementById('inv-cnt-out').textContent = allInv.filter(i=>i.status==='출고중').length;
   document.getElementById('inv-cnt-done').textContent = allInv.filter(i=>i.status==='개통').length;
@@ -1691,7 +1691,7 @@ async function changeInvStatus(id, status) {
   // 카드 숫자 갱신
   const { data: allData } = await sb.from('inventory').select('status');
   const allInv = allData || [];
-  document.getElementById('inv-cnt-all').textContent = allInv.length;
+  document.getElementById('inv-cnt-all').textContent = allInv.filter(i=>i.status!=='개통').length;
   document.getElementById('inv-cnt-stock').textContent = allInv.filter(i=>i.status==='재고').length;
   document.getElementById('inv-cnt-out').textContent = allInv.filter(i=>i.status==='출고중').length;
   document.getElementById('inv-cnt-done').textContent = allInv.filter(i=>i.status==='개통').length;
