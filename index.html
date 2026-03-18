@@ -1566,7 +1566,7 @@ async function loadInvSummary() {
     <td style="color:var(--text-hint);text-align:center">${r.hidden}</td>
     <td style="color:var(--orange);text-align:center">${r.out}</td>
     <td style="color:var(--green);text-align:center">${r.done}</td>
-    <td style="font-weight:600;text-align:center">${r.total}</td>
+    <td style="font-weight:600;text-align:center">${r.stock + r.out + r.hidden}</td>
     <td style="text-align:center;color:var(--text-sub);font-size:12px">${price ? price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">-</span>'}</td>
     <td style="text-align:center;font-weight:700;color:var(--purple)">${totalAmt ? totalAmt.toLocaleString()+'원' : '<span style="color:var(--text-hint)">-</span>'}</td>
   </tr>`;
