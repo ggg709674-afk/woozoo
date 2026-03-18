@@ -297,6 +297,14 @@ body.dark .settl-light-wrap .tkey-ok { background: rgba(245,158,11,0.08) !import
 body.dark .settl-light-wrap .btn-primary { background: var(--primary) !important; color: #fff !important; }
 body.dark .settl-light-wrap label[style*="background:var(--primary)"] { background: var(--primary) !important; }
 
+/* 정산 드롭다운 팝업 라이트 고정 */
+body.dark .model-dd-popup { background: #fff !important; border-color: #E2E8F0 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; }
+body.dark .model-dd-search { background: #fff !important; color: #1A202C !important; border-bottom-color: #E2E8F0 !important; }
+body.dark .model-dd-search::placeholder { color: #94A3B8 !important; }
+body.dark .model-dd-list .dd-item { background: #fff !important; color: #1A202C !important; }
+body.dark .model-dd-list .dd-item:hover, body.dark .model-dd-list .dd-item.hl { background: #EEF2FF !important; color: #3A7AE8 !important; }
+body.dark .model-dd-list .dd-empty { color: #94A3B8 !important; background: #fff !important; }
+
 /* ─── 다크모드 전체 보완 ─── */
 /* 레이아웃 */
 body.dark .card { background: var(--white) !important; border-color: var(--border) !important; }
@@ -2055,6 +2063,11 @@ function selectPartnerDd(name) {
   partnerDdEl.classList.remove('open');
 }
 
+function clearPartnerDd(i, input) {
+  input.value = '';
+  settlUpdate(i, 'seller', '');
+}
+
 function partnerDdKey(e) {
   const items = document.querySelectorAll('#partner-dd-list .model-dd-item');
   const hl = document.querySelector('#partner-dd-list .model-dd-item.hl');
@@ -2095,6 +2108,11 @@ function selectModelDd(code) {
   modelDdTarget.input.value = code;
   settlUpdateModel(modelDdTarget.i, code);
   modelDdEl.classList.remove('open');
+}
+
+function clearModelDd(i, input) {
+  input.value = '';
+  settlUpdateModel(i, '');
 }
 
 function modelDdKey(e) {
@@ -2165,7 +2183,7 @@ function buildSettlRow(i, r) {
           <option ${r.policy_type==='특별정책'?'selected':''}>특별정책</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" readonly onclick="openPartnerDd(${i},this)" style="cursor:pointer"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" readonly onclick="openPartnerDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearPartnerDd(${i},this)" style="cursor:pointer"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'act_type',this.value)">
           <option value=""></option>
@@ -2177,7 +2195,7 @@ function buildSettlRow(i, r) {
       <td class="stl-td"><input class="stl-input" value="${r.customer||''}" oninput="settlUpdate(${i},'customer',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.birth||''}" maxlength="6" oninput="settlUpdate(${i},'birth',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.phone ? fmtPhone(r.phone) : ''}" oninput="settlUpdate(${i},'phone',this.value)" onblur="this.value=fmtPhone(this.value);settlUpdate(${i},'phone',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.model||''}" readonly onclick="openModelDd(${i},this)" style="cursor:pointer;font-family:monospace"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.model||''}" readonly onclick="openModelDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearModelDd(${i},this)" style="cursor:pointer;font-family:monospace"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.serial||''}" oninput="settlUpdateSerial(${i},this.value)" style="font-family:monospace"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'usim',this.value)">
