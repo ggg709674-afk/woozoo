@@ -2531,10 +2531,11 @@ async function renderSupportMatrix() {
           ${plans.map(p => {
             const key = `${m.code}||${p.id}`;
             const amt = amtMap[key];
+            const hasVal = amt !== undefined && amt !== null;
             return `<td style="padding:2px;border:1px solid var(--border);text-align:center">
-              <input type="text" value="${amt ? amt.toLocaleString() : ''}" placeholder="-"
+              <input type="text" value="${hasVal ? Number(amt).toLocaleString() : ''}" placeholder="-"
                 data-model="${m.code}" data-plan="${p.id}"
-                style="width:78px;height:28px;border:none;background:transparent;text-align:center;font-size:12px;font-weight:${amt?'600':'400'};color:${amt?'var(--text)':'var(--text-hint)'};outline:none;font-family:inherit;cursor:pointer"
+                style="width:78px;height:28px;border:none;background:transparent;text-align:center;font-size:12px;font-weight:${hasVal&&amt?'600':'400'};color:${hasVal&&amt?'var(--text)':'var(--text-hint)'};outline:none;font-family:inherit;cursor:pointer"
                 onfocus="this.value=this.value.replace(/,/g,'');this.style.background='var(--primary-light)';this.style.color='var(--primary)'"
                 onblur="saveSupportCell(this)"
                 onkeydown="if(event.key==='Enter')this.blur()"/>
