@@ -2666,7 +2666,7 @@ async function loadPlanMap() {
   maps.sort((a, b) => {
     const feeA = planMap[a.plan_id]?.fee || 0;
     const feeB = planMap[b.plan_id]?.fee || 0;
-    return feeA - feeB;
+    return feeB - feeA;
   });
   tbody.innerHTML = maps.map(m => {
     const plan = planMap[m.plan_id];
