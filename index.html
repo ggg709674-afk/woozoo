@@ -1667,6 +1667,7 @@ async function loadInventory() {
 async function changeInvStatus(id, status) {
   await sb.from('inventory').update({status}).eq('id', id);
   toast('✓ 상태 변경됨');
+  loadInventory();
 }
 
 // ─── 주문 처리 ───
