@@ -827,23 +827,23 @@ tr.drag-over { border-top:2px solid var(--primary); }
             <table style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
-                  <th style="width:80px">상태</th>
-                  <th style="width:70px">입고일</th>
-                  <th style="width:50px">경과</th>
-                  <th style="width:110px">모델명</th>
-                  <th style="width:120px">일련번호</th>
-                  <th style="width:80px">색상</th>
-                  <th style="width:70px">재고위치</th>
-                  <th style="width:70px">출고일</th>
-                  <th style="width:80px">출고점명</th>
-                  <th style="width:70px">개통일</th>
-                  <th style="width:80px">개통점</th>
-                  <th style="width:36px;text-align:center">A</th>
-                  <th style="width:36px;text-align:center">B</th>
-                  <th style="width:36px;text-align:center">C</th>
-                  <th style="width:36px;text-align:center">D</th>
-                  <th style="width:36px;text-align:center">E</th>
-                  <th style="width:70px">관리</th>
+                  <th style="width:70px">상태</th>
+                  <th style="width:60px">입고일</th>
+                  <th style="width:40px">경과</th>
+                  <th style="width:90px">모델명</th>
+                  <th style="width:100px">일련번호</th>
+                  <th style="width:60px">색상</th>
+                  <th style="width:60px">재고위치</th>
+                  <th style="width:30px;text-align:center">A</th>
+                  <th style="width:30px;text-align:center">B</th>
+                  <th style="width:30px;text-align:center">C</th>
+                  <th style="width:30px;text-align:center">D</th>
+                  <th style="width:30px;text-align:center">E</th>
+                  <th style="width:60px">출고일</th>
+                  <th style="width:70px">출고점명</th>
+                  <th style="width:60px">개통일</th>
+                  <th style="width:70px">개통점</th>
+                  <th style="width:60px">관리</th>
                 </tr>
               </thead>
               <tbody id="inv-tbody"><tr><td colspan="12" class="loading">로딩중...</td></tr></tbody>
@@ -1665,10 +1665,6 @@ async function loadInventory() {
     <td style="font-family:monospace;font-size:12px;color:var(--text-sub)">${i.serial_number}</td>
     <td style="font-size:12px">${i.color || '-'}</td>
     <td style="font-size:12px;color:var(--text-sub)">${i.location || '-'}</td>
-    <td style="font-size:12px;white-space:nowrap">${i.shipped_date ? fmtDate(i.shipped_date) : '-'}</td>
-    <td style="font-size:12px">${i.shipped_to || '-'}</td>
-    <td style="font-size:12px;white-space:nowrap;color:var(--green)">${i.activated_date ? fmtDate(i.activated_date) : '-'}</td>
-    <td style="font-size:12px">${i.activated_at || '-'}</td>
     ${['A','B','C','D','E'].map(g => `
       <td style="text-align:center">
         <input type="checkbox" ${(i.visible_groups||[]).includes(g)?'checked':''}
@@ -1676,6 +1672,10 @@ async function loadInventory() {
           style="width:14px;height:14px;accent-color:var(--red);cursor:pointer"
           title="${g}그룹에 숨김"/>
       </td>`).join('')}
+    <td style="font-size:12px;white-space:nowrap">${i.shipped_date ? fmtDate(i.shipped_date) : '-'}</td>
+    <td style="font-size:12px">${i.shipped_to || '-'}</td>
+    <td style="font-size:12px;white-space:nowrap;color:var(--green)">${i.activated_date ? fmtDate(i.activated_date) : '-'}</td>
+    <td style="font-size:12px">${i.activated_at || '-'}</td>
     <td>
       <select class="filter-select" style="height:28px;font-size:11px" onchange="changeInvStatus('${i.id}', this.value)">
         <option ${i.status==='재고'?'selected':''}>재고</option>
