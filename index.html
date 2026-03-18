@@ -1486,7 +1486,7 @@ async function loadDashboard() {
         toggleBtn.textContent = isHidden ? '▲ 접기' : `▼ 더보기 (${modelRows.length - LIMIT}개)`;
       };
     } else {
-      toggleBtn.style.display = 'none';
+      if (toggleBtn) toggleBtn.style.display = 'none';
     }
   }
 
