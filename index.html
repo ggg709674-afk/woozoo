@@ -1365,6 +1365,12 @@ async function loadInvSummary() {
   }).join('');
 
   initDragSort();
+
+  // 현황표 탭이면 전체 카드 active
+  if (document.getElementById('inv-panel-summary').style.display !== 'none') {
+    document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('isc-all').classList.add('active');
+  }
 }
 
 function initDragSort() {
