@@ -838,6 +838,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
                   <th style="width:80px">출고점명</th>
                   <th style="width:70px">개통일</th>
                   <th style="width:80px">개통점</th>
+                  <th style="width:120px">그룹</th>
                   <th style="width:70px">관리</th>
                 </tr>
               </thead>
@@ -894,7 +895,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>거래처명</th><th>슬러그 (주문링크)</th><th>등록일</th><th>주문링크</th></tr></thead>
+            <thead><tr><th>거래처명</th><th>슬러그 (주문링크)</th><th>그룹</th><th>등록일</th><th>주문링크</th></tr></thead>
             <tbody id="partner-tbody"><tr><td colspan="4" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
@@ -1664,6 +1665,15 @@ async function loadInventory() {
     <td style="font-size:12px">${i.shipped_to || '-'}</td>
     <td style="font-size:12px;white-space:nowrap;color:var(--green)">${i.activated_date ? fmtDate(i.activated_date) : '-'}</td>
     <td style="font-size:12px">${i.activated_at || '-'}</td>
+    <td style="white-space:nowrap">
+      ${['A','B','C','D','E'].map(g => `
+        <label style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;font-size:11px;font-weight:700;cursor:pointer;color:${(i.visible_groups||[]).includes(g)?'var(--primary)':'var(--text-hint)'}">
+          <input type="checkbox" ${(i.visible_groups||[]).includes(g)?'checked':''} 
+            onchange="toggleInvGroup('${i.id}',this,'${g}',${JSON.stringify(i.visible_groups||[])})"
+            style="width:13px;height:13px;accent-color:var(--primary);cursor:pointer"/>
+          ${g}
+        </label>`).join('')}
+    </td>
     <td>
       <select class="filter-select" style="height:28px;font-size:11px" onchange="changeInvStatus('${i.id}', this.value)">
         <option ${i.status==='재고'?'selected':''}>재고</option>
@@ -1759,13 +1769,40 @@ async function saveOrder() {
 async function loadPartners() {
   const { data } = await sb.from('partners').select('*').order('created_at', {ascending: false});
   const tbody = document.getElementById('partner-tbody');
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">거래처 없음</td></tr>'; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">거래처 없음</td></tr>'; return; }
+  const groups = ['A','B','C','D','E'];
   tbody.innerHTML = data.map(p => `<tr>
     <td style="font-weight:700">${p.name}</td>
     <td style="font-family:monospace;font-size:12px;color:var(--text-sub)">${p.slug}</td>
+    <td>
+      <select class="filter-select" style="height:28px;font-size:12px;width:80px" onchange="updatePartnerGroup('${p.id}',this.value)">
+        <option value="" ${!p.partner_group?'selected':''}>없음</option>
+        ${groups.map(g=>`<option value="${g}" ${p.partner_group===g?'selected':''}>${g}그룹</option>`).join('')}
+      </select>
+    </td>
     <td style="font-size:12px;color:var(--text-sub)">${fmtDate(p.created_at)}</td>
     <td><button class="btn btn-outline btn-sm" onclick="copyLink('${p.slug}')">🔗 링크 복사</button></td>
   </tr>`).join('');
+}
+
+async function toggleInvGroup(id, checkbox, group, currentGroups) {
+  let groups = [...(currentGroups || [])];
+  if (checkbox.checked) {
+    if (!groups.includes(group)) groups.push(group);
+  } else {
+    groups = groups.filter(g => g !== group);
+  }
+  const { error } = await sb.from('inventory').update({ visible_groups: groups.length ? groups : null }).eq('id', id);
+  if (error) { toast('변경 실패'); checkbox.checked = !checkbox.checked; return; }
+  const label = checkbox.parentElement;
+  label.style.color = checkbox.checked ? 'var(--primary)' : 'var(--text-hint)';
+  // currentGroups 업데이트 (다음 토글을 위해 inline attribute 갱신)
+  checkbox.setAttribute('onchange', `toggleInvGroup('${id}',this,'${group}',${JSON.stringify(groups)})`);
+}
+
+async function updatePartnerGroup(id, group) {
+  await sb.from('partners').update({ partner_group: group || null }).eq('id', id);
+  toast('✓ 그룹 변경됨');
 }
 
 function copyLink(slug) {
