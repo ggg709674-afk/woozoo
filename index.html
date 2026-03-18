@@ -2057,7 +2057,7 @@ function openPartnerDd(i, input) {
 function filterPartnerDd(q) {
   const list = document.getElementById('partner-dd-list');
   const filtered = settlPartners.filter(p => !q || p.name.toLowerCase().includes(q.toLowerCase()));
-  list.innerHTML = filtered.map(p => `<div class="model-dd-item" onclick="selectPartnerDd('${p.name}')">${p.name}</div>`).join('');
+  list.innerHTML = `<div class="model-dd-item" onclick="selectPartnerDd('')" style="color:var(--text-hint)">— 없음 —</div>` + filtered.map(p => `<div class="model-dd-item" onclick="selectPartnerDd('${p.name}')">${p.name}</div>`).join('');
 }
 
 function selectPartnerDd(name) {
@@ -2104,7 +2104,7 @@ function openModelDd(i, input) {
 function filterModelDd(q) {
   const list = document.getElementById('model-dd-list');
   const filtered = settlModels.filter(m => !q || m.code.toLowerCase().includes(q.toLowerCase()));
-  list.innerHTML = filtered.map(m => `<div class="model-dd-item" onclick="selectModelDd('${m.code}')">${m.code}</div>`).join('');
+  list.innerHTML = `<div class="model-dd-item" onclick="selectModelDd('')" style="color:var(--text-hint)">— 없음 —</div>` + filtered.map(m => `<div class="model-dd-item" onclick="selectModelDd('${m.code}')">${m.code}</div>`).join('');
 }
 
 function selectModelDd(code) {
@@ -2187,7 +2187,7 @@ function buildSettlRow(i, r) {
           <option ${r.policy_type==='특별정책'?'selected':''}>특별정책</option>
         </select>
       </td>
-      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" readonly onclick="openPartnerDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearPartnerDd(${i},this)" style="cursor:pointer"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.seller||''}" readonly onclick="openPartnerDd(${i},this)" oncontextmenu="event.preventDefault();clearPartnerDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearPartnerDd(${i},this)" style="cursor:pointer" title="우클릭으로 삭제"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'act_type',this.value)">
           <option value=""></option>
@@ -2199,7 +2199,7 @@ function buildSettlRow(i, r) {
       <td class="stl-td"><input class="stl-input" value="${r.customer||''}" oninput="settlUpdate(${i},'customer',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.birth||''}" maxlength="6" oninput="settlUpdate(${i},'birth',this.value)"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.phone ? fmtPhone(r.phone) : ''}" oninput="settlUpdate(${i},'phone',this.value)" onblur="this.value=fmtPhone(this.value);settlUpdate(${i},'phone',this.value)"/></td>
-      <td class="stl-td"><input class="stl-input" value="${r.model||''}" readonly onclick="openModelDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearModelDd(${i},this)" style="cursor:pointer;font-family:monospace"/></td>
+      <td class="stl-td"><input class="stl-input" value="${r.model||''}" readonly onclick="openModelDd(${i},this)" oncontextmenu="event.preventDefault();clearModelDd(${i},this)" onkeydown="if(event.key==='Delete'||event.key==='Backspace')clearModelDd(${i},this)" style="cursor:pointer;font-family:monospace" title="우클릭으로 삭제"/></td>
       <td class="stl-td"><input class="stl-input" value="${r.serial||''}" oninput="settlUpdateSerial(${i},this.value)" style="font-family:monospace"/></td>
       <td class="stl-td">
         <select class="stl-select" onchange="settlUpdate(${i},'usim',this.value)">
