@@ -900,9 +900,18 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <div class="page-title">공통지원금</div>
           <div class="page-sub">모델별 요금제 공통지원금 관리</div>
         </div>
-        <button class="btn btn-primary" id="support-save-btn" onclick="saveSupport()" style="display:none;align-items:center;gap:6px">
-          <i data-lucide="save" style="width:14px;height:14px"></i> 저장
-        </button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-outline" onclick="downloadSupportExcel()" style="display:flex;align-items:center;gap:6px">
+            <i data-lucide="download" style="width:14px;height:14px"></i> 양식 다운로드
+          </button>
+          <label class="btn btn-outline" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
+            <i data-lucide="upload" style="width:14px;height:14px"></i> 엑셀 업로드
+            <input type="file" accept=".xlsx,.xls" style="display:none" onchange="uploadSupportExcel(this)"/>
+          </label>
+          <button class="btn btn-primary" id="support-save-btn" onclick="saveSupport()" style="display:none;align-items:center;gap:6px">
+            <i data-lucide="save" style="width:14px;height:14px"></i> 저장
+          </button>
+        </div>
       </div>
       <!-- 모델 드롭다운 -->
       <div class="card" style="margin-bottom:12px;padding:14px 16px">
@@ -2334,6 +2343,86 @@ async function saveSupport() {
 }
 </script>
 <script>
+async function downloadSupportExcel() {
+  toast('엑셀 생성 중...');
+  const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm');
+
+  const [{ data: models }, { data: plans }, { data: existing }] = await Promise.all([
+    sb.from('models').select('code').eq('is_active', true).order('code'),
+    sb.from('plans').select('id,name,plan_group').eq('is_active', true).order('sort_order'),
+    sb.from('support_amount').select('model_code,plan_id,amount')
+  ]);
+
+  // 기존 데이터 맵
+  const existMap = {};
+  existing?.forEach(e => { existMap[`${e.model_code}||${e.plan_id}`] = e.amount; });
+
+  // 헤더: 모델코드 | 요금제군 | 요금제명 | 지원금
+  const header = ['모델코드', '요금제군', '요금제명', '지원금'];
+  const rows = [header];
+
+  models?.forEach(m => {
+    plans?.forEach(p => {
+      const amt = existMap[`${m.code}||${p.id}`] || 0;
+      rows.push([m.code, p.plan_group, p.name, amt]);
+    });
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:15},{wch:12},{wch:25},{wch:12}];
+
+  // 헤더 스타일
+  ['A1','B1','C1','D1'].forEach(cell => {
+    if (ws[cell]) ws[cell].s = { font:{bold:true}, fill:{fgColor:{rgb:'4F8EF7'}}, font:{bold:true,color:{rgb:'FFFFFF'}} };
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '공통지원금');
+  XLSX.writeFile(wb, '공통지원금_양식.xlsx');
+  toast('✓ 다운로드 완료');
+}
+
+async function uploadSupportExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('파일 읽는 중...');
+  const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm');
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+  // 헤더 제외
+  const dataRows = rows.slice(1).filter(r => r[0] && r[2] && r[3] !== undefined);
+
+  // 요금제명 → id 맵
+  const { data: plans } = await sb.from('plans').select('id,name');
+  const planMap = {};
+  plans?.forEach(p => { planMap[p.name] = p.id; });
+
+  const upserts = [];
+  let skipped = 0;
+  dataRows.forEach(r => {
+    const modelCode = String(r[0]).trim();
+    const planName = String(r[2]).trim();
+    const amount = parseInt(r[3]) || 0;
+    const planId = planMap[planName];
+    if (!planId) { skipped++; return; }
+    upserts.push({ model_code: modelCode, plan_id: planId, amount });
+  });
+
+  if (!upserts.length) { toast('저장할 데이터가 없어요'); return; }
+
+  const { error } = await sb.from('support_amount').upsert(upserts, { onConflict: 'model_code,plan_id' });
+  input.value = '';
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  toast(`✓ ${upserts.length}건 저장 완료${skipped ? ` (${skipped}건 스킵)` : ''}`);
+
+  // 현재 선택된 모델 있으면 새로고침
+  const sel = document.getElementById('support-model-select');
+  if (sel?.value) selectSupportModel(sel.value);
+}
+
 async function updateColorFilter() {
   const model = document.getElementById('inv-filter-model').value;
   const colorSel = document.getElementById('inv-filter-color');
