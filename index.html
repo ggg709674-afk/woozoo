@@ -301,8 +301,11 @@ body.dark .settl-light-wrap label[style*="background:var(--primary)"] { backgrou
 body.dark .model-dd-popup { background: #fff !important; border-color: #E2E8F0 !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; }
 body.dark .model-dd-search { background: #fff !important; color: #1A202C !important; border-bottom-color: #E2E8F0 !important; }
 body.dark .model-dd-search::placeholder { color: #94A3B8 !important; }
-body.dark .model-dd-list .dd-item { background: #fff !important; color: #1A202C !important; }
-body.dark .model-dd-list .dd-item:hover, body.dark .model-dd-list .dd-item.hl { background: #EEF2FF !important; color: #3A7AE8 !important; }
+body.dark .model-dd-list .dd-item,
+body.dark .model-dd-list .model-dd-item { background: #fff !important; color: #1A202C !important; font-weight: 500 !important; }
+body.dark .model-dd-list .dd-item:hover,
+body.dark .model-dd-list .model-dd-item:hover,
+body.dark .model-dd-list .model-dd-item.hl { background: #EEF2FF !important; color: #3A7AE8 !important; }
 body.dark .model-dd-list .dd-empty { color: #94A3B8 !important; background: #fff !important; }
 
 /* ─── 다크모드 전체 보완 ─── */
@@ -2032,10 +2035,11 @@ partnerDdEl.innerHTML = `<input class="model-dd-search" id="partner-dd-search" p
 document.body.appendChild(partnerDdEl);
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('.model-dd-popup') && !e.target.classList.contains('stl-input')) {
-    modelDdEl.classList.remove('open');
-    partnerDdEl.classList.remove('open');
-  }
+  const isPopup = e.target.closest('.model-dd-popup');
+  const isPartnerInput = e.target === (partnerDdTarget?.input);
+  const isModelInput = e.target === (modelDdTarget?.input);
+  if (!isPopup && !isPartnerInput) partnerDdEl.classList.remove('open');
+  if (!isPopup && !isModelInput) modelDdEl.classList.remove('open');
 });
 
 function openPartnerDd(i, input) {
