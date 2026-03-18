@@ -2538,7 +2538,7 @@ async function renderSupportMatrix() {
   let html = `<table style="border-collapse:collapse;font-size:12px;white-space:nowrap">
     <thead>
       <tr>
-        <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;z-index:2;min-width:100px">모델</th>
+        <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;z-index:3;min-width:100px;box-shadow:2px 0 4px rgba(0,0,0,0.08)">모델</th>
         ${plans.map(p => `
           <th style="padding:6px 8px;background:var(--border-light);border:1px solid var(--border);text-align:center;min-width:80px">
             <div style="font-weight:700;color:var(--text);font-size:11px">${p.name}</div>
@@ -2549,7 +2549,7 @@ async function renderSupportMatrix() {
     <tbody>
       ${models.map((m, mi) => `
         <tr style="${mi%2===0?'background:var(--white)':'background:var(--border-light)'}">
-          <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700;color:var(--primary);font-family:monospace;position:sticky;left:0;z-index:1;background:${mi%2===0?'var(--white)':'var(--border-light)'}">${m.code}</td>
+          <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700;color:var(--primary);font-family:monospace;position:sticky;left:0;z-index:1;background:${mi%2===0?'var(--white)':'var(--border-light)'};box-shadow:2px 0 4px rgba(0,0,0,0.08)">${m.code}</td>
           ${plans.map(p => {
             const amt = amtMap[`${m.code}||${p.id}`];
             return `<td style="padding:7px 8px;border:1px solid var(--border);text-align:center;color:${amt?'var(--text)':'var(--text-hint)'};font-weight:${amt?'600':'400'}">${amt ? amt.toLocaleString() : '-'}</td>`;
