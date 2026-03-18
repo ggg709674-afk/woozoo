@@ -36,6 +36,43 @@
   --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
   --sidebar-width: 200px;
 }
+
+/* ─── 다크 테마 ─── */
+body.dark {
+  --bg: #0F1117;
+  --white: #1A2030;
+  --primary: #4F8EF7;
+  --primary-dark: #3A7AE8;
+  --primary-light: rgba(79,142,247,0.15);
+  --text: #E8EAF0;
+  --text-sub: #8892A4;
+  --text-hint: #4A5568;
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.04);
+  --green: #34D399;
+  --green-bg: rgba(52,211,153,0.1);
+  --red: #F87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --orange: #F59E0B;
+  --orange-bg: rgba(245,158,11,0.1);
+  --purple: #A78BFA;
+  --purple-bg: rgba(167,139,250,0.1);
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+}
+body.dark .sidebar { background: #161B26 !important; }
+body.dark .login-wrap { background: linear-gradient(135deg, #1a1f35 0%, #2d1b4e 100%); }
+body.dark .login-box { background: #1A2030; }
+body.dark .login-input { background: #0F1117; border-color: rgba(255,255,255,0.1); color: var(--text); }
+body.dark .modal { background: #1A2030; }
+body.dark .modal-input { background: #0F1117; border-color: rgba(255,255,255,0.1); color: var(--text); }
+body.dark .select, body.dark .input, body.dark .filter-select, body.dark .search-input-bar, body.dark .search-input { background: #0F1117; border-color: rgba(255,255,255,0.1); color: var(--text); }
+body.dark .barcode-input { background: #0F1117; border-color: rgba(255,255,255,0.1); color: var(--text); }
+body.dark tbody tr:hover { background: rgba(79,142,247,0.06); }
+body.dark .stl-input, body.dark .stl-select { background: transparent; color: var(--text); }
+body.dark .stl-auto { background: rgba(79,142,247,0.15); }
+body, body * { transition: background-color 0.2s, border-color 0.2s, color 0.15s; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; }
 
@@ -358,9 +395,14 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <div class="sidebar-user-role" id="sidebar-role">-</div>
         </div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">
-        <i data-lucide="log-out" style="width:14px;height:14px"></i> 로그아웃
-      </button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <button class="logout-btn" onclick="doLogout()">
+          <i data-lucide="log-out" style="width:14px;height:14px"></i> 로그아웃
+        </button>
+        <button id="theme-toggle" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);transition:all .15s" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+          <i data-lucide="sun" id="theme-icon" style="width:13px;height:13px"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1060,6 +1102,27 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 });
 
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('woozoo-theme', isDark ? 'dark' : 'light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+    lucide.createIcons();
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('woozoo-theme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark');
+    setTimeout(() => {
+      const icon = document.getElementById('theme-icon');
+      if (icon) { icon.setAttribute('data-lucide', 'moon'); lucide.createIcons(); }
+    }, 100);
+  }
+}
+
 function showLogin() {
   document.getElementById('form-login').style.display = 'block';
   document.getElementById('form-signup').style.display = 'none';
@@ -1134,6 +1197,8 @@ async function doLogout() {
   document.getElementById('login-page').style.display = 'flex';
   showLogin();
 }
+
+initTheme();
 
 sb.auth.onAuthStateChange((event, session) => {
   if (session && !appEntered) {
