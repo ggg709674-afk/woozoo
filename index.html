@@ -378,11 +378,14 @@ body.dark .toast { background: #E8EAF0 !important; color: #1A202C !important; }
 /* 정산 sticky 행번호 셀 */
 body.dark .settl-light-wrap td[style*="position:sticky"] { background: #fff !important; color: #94A3B8 !important; }
 
-/* 입고등록 테이블 */
-body.dark #si-tbody td { color: var(--text) !important; }
-body.dark .add-panel table thead th { color: var(--text-hint) !important; background: var(--border-light) !important; }
-body.dark .add-panel .card-header { border-bottom-color: var(--border) !important; }
+/* 모든 테이블 헤더 다크모드 강제 */
+body.dark th { color: var(--text-hint) !important; background: var(--border-light) !important; }
+body.dark td { color: var(--text) !important; }
+body.dark tr:hover td { color: var(--text) !important; }
+
+/* 입고등록 카드 */
 body.dark .card-header { border-bottom-color: var(--border) !important; }
+body.dark .card-header .card-title { color: var(--text) !important; }
 .stl-th { padding:7px 8px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--text-hint);text-align:center;border-right:1px solid var(--border);border-bottom:2px solid var(--border); }
 .stl-td { padding:0;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border-light);vertical-align:middle;text-align:center; }
 .stl-input { height:30px;border:none;padding:0 7px;font-size:12px;font-family:inherit;outline:none;background:transparent;width:100%;display:block;text-align:center; }
