@@ -2689,8 +2689,9 @@ async function downloadSupportExcel() {
   amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
 
   // 헤더행: 모델 | 요금제1 | 요금제2 ...
-  const header = ['모델', ...plans.map(p => `${p.name}\n${p.monthly_fee ? p.monthly_fee.toLocaleString()+'원' : '-'}`)];
-  const rows = [header];
+  const header = ['모델', ...plans.map(p => p.name)];
+  const subHeader = ['', ...plans.map(p => p.monthly_fee ? p.monthly_fee.toLocaleString()+'원' : '-')];
+  const rows = [header, subHeader];
 
   models?.forEach(m => {
     const row = [m.code, ...plans.map(p => amtMap[`${m.code}||${p.id}`] || '')];
@@ -2717,8 +2718,8 @@ async function uploadSupportExcel(input) {
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-  // 1행: ['모델', '요금제1', '요금제2', ...]
-  const planNames = rows[0].slice(1).map(h => String(h).split('\n')[0].trim());
+  // 1행: 요금제명, 2행: 기본요금(스킵), 3행~: 데이터
+  const planNames = rows[0].slice(1).map(h => String(h||'').trim());
 
   // 요금제명 → id 맵
   const { data: plans } = await sb.from('plans').select('id,name');
@@ -2728,7 +2729,7 @@ async function uploadSupportExcel(input) {
   const upserts = [];
   let skipped = 0;
 
-  rows.slice(1).forEach(row => {
+  rows.slice(2).forEach(row => {
     const modelCode = String(row[0] || '').trim();
     if (!modelCode) return;
     planNames.forEach((planName, idx) => {
