@@ -1295,8 +1295,11 @@ function switchInvTab(tab) {
   if (tab === 'summary') {
     loadInvSummary();
     document.getElementById('inv-filter-status').value = '';
-    document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('isc-all').classList.add('active');
+    // loadInvSummary가 비동기라 약간 뒤에 active 적용
+    setTimeout(() => {
+      document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
+      document.getElementById('isc-all').classList.add('active');
+    }, 50);
   }
   if (tab === 'list') loadInventory();
   setTimeout(() => lucide.createIcons(), 30);
@@ -1383,15 +1386,18 @@ function invResetFilter() {
 }
 
 function setInvFilter(status) {
-  // 재고 목록 탭일 때만 필터 작동
   const isListTab = document.getElementById('inv-panel-list').style.display !== 'none';
-  if (!isListTab) {
-    switchInvTab('list');
-  }
   document.getElementById('inv-filter-status').value = status;
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   const map = {'':'isc-all','재고':'isc-stock','출고중':'isc-out','개통':'isc-done','숨김':'isc-hidden'};
   document.getElementById(map[status]).classList.add('active');
+  if (!isListTab) {
+    // 탭만 전환, loadInventory는 switchInvTab 안에서 호출됨
+    document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('inv-tab-list').classList.add('active');
+    document.getElementById('inv-panel-summary').style.display = 'none';
+    document.getElementById('inv-panel-list').style.display = '';
+  }
   loadInventory();
 }
 
