@@ -135,6 +135,7 @@ body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--b
 .main { margin-left: var(--sidebar-width); padding: 12px 16px; min-height: 100vh; max-width: 1600px; }
 #page-settlement { margin: -12px -16px; padding: 12px 16px; width: calc(100vw - var(--sidebar-width)); max-width: none; box-sizing: border-box; }
 #support-panel-table { margin: 0 -16px; width: calc(100vw - var(--sidebar-width)); box-sizing: border-box; }
+#page-support .card { border-radius: 0; }
 .page-header { margin-bottom: 12px; }
 .page-title { font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
 .page-sub { font-size: 13px; color: var(--text-sub); margin-top: 3px; }
@@ -1086,47 +1087,19 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <div class="page-title">공통지원금</div>
           <div class="page-sub">모델별 요금제 공통지원금 관리</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center" id="support-edit-btns">
+        <div style="display:flex;gap:8px;align-items:center">
           <button class="btn btn-outline" onclick="downloadSupportExcel()" style="display:flex;align-items:center;gap:6px">
-            <i data-lucide="download" style="width:14px;height:14px"></i> 양식 다운로드
+            <i data-lucide="download" style="width:14px;height:14px"></i> 엑셀 다운로드
           </button>
           <label class="btn btn-outline" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
             <i data-lucide="upload" style="width:14px;height:14px"></i> 엑셀 업로드
             <input type="file" accept=".xlsx,.xls" style="display:none" onchange="uploadSupportExcel(this)"/>
           </label>
-          <button class="btn btn-primary" id="support-save-btn" onclick="saveSupport()" style="display:none;align-items:center;gap:6px">
-            <i data-lucide="save" style="width:14px;height:14px"></i> 저장
-          </button>
         </div>
       </div>
-
-      <!-- 탭 -->
-      <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:16px">
-        <button class="inv-tab active" id="support-tab-edit" onclick="switchSupportTab('edit')">지원금 입력</button>
-        <button class="inv-tab" id="support-tab-table" onclick="switchSupportTab('table')">지원금 테이블</button>
-      </div>
-
-      <!-- 입력 탭 -->
-      <div id="support-panel-edit">
-        <div class="card" style="margin-bottom:12px;padding:14px 16px">
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:13px;font-weight:700;color:var(--text-sub);white-space:nowrap">모델 선택</span>
-            <select class="select" id="support-model-select" onchange="selectSupportModel(this.value)" style="width:220px">
-              <option value="">-- 모델을 선택하세요 --</option>
-            </select>
-          </div>
-        </div>
-        <div class="card" style="padding:0;overflow:hidden;max-width:800px">
-          <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
-            위에서 모델을 선택하세요
-          </div>
-        </div>
-      </div>
-
-      <!-- 테이블 탭 -->
-      <div id="support-panel-table" style="display:none">
+      <div id="support-panel-table">
         <div class="card" style="padding:0;overflow:hidden">
-          <div style="overflow:auto;max-height:calc(100vh - 220px)">
+          <div style="overflow:auto;max-height:calc(100vh - 180px)">
             <div id="support-matrix-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
               로딩중...
             </div>
@@ -2595,14 +2568,7 @@ let supportData = {};
 let supportSelectedModel = null;
 
 async function loadSupport() {
-  // 모델 + 요금제 동시 로드
-  const [{ data: models }, { data: plans }] = await Promise.all([
-    sb.from('models').select('code').eq('is_active', true).order('code'),
-    sb.from('plans').select('id,name,plan_group,monthly_fee').eq('is_active', true).order('sort_order')
-  ]);
-  supportModels = models || [];
-  supportPlans = plans || [];
-  renderSupportModelList();
+  renderSupportMatrix();
 }
 
 function renderSupportModelList() {
