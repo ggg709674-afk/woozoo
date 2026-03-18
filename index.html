@@ -1111,6 +1111,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
             <tr style="background:var(--border-light)">
               <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT 요금제명</th>
               <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT ID</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:var(--text-sub)">기본요금</th>
               <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">우주커넥트 요금제</th>
               <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">관리</th>
             </tr>
@@ -2652,28 +2653,31 @@ let supportSelectedModel = null;
 // ─── SKT 요금제 매핑 ───
 async function loadPlanMap() {
   const { data: maps } = await sb.from('plan_mapping').select('*').order('created_at', { ascending: false });
-  const { data: plans } = await sb.from('plans').select('id,name').eq('is_active', true).order('sort_order');
+  const { data: plans } = await sb.from('plans').select('id,name,monthly_fee').eq('is_active', true).order('sort_order');
   const tbody = document.getElementById('planmap-tbody');
   if (!maps || maps.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty">매핑 데이터가 없습니다. 위에서 SKT 요금제를 선택하세요.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">매핑 데이터가 없습니다. 위에서 SKT 요금제를 선택하세요.</td></tr>';
     return;
   }
-  const planNameMap = {};
-  plans?.forEach(p => planNameMap[p.id] = p.name);
-  tbody.innerHTML = maps.map(m => `
+  const planMap = {};
+  plans?.forEach(p => planMap[p.id] = { name: p.name, fee: p.monthly_fee });
+  tbody.innerHTML = maps.map(m => {
+    const plan = planMap[m.plan_id];
+    return `
     <tr style="border-bottom:1px solid var(--border-light)">
       <td style="padding:12px 16px;font-weight:600">${m.skt_plan_name}</td>
       <td style="padding:12px 16px;font-family:monospace;color:var(--text-sub);font-size:12px">${m.skt_plan_id}</td>
+      <td style="padding:12px 16px;text-align:right;font-weight:700;color:var(--text)">${plan ? plan.fee.toLocaleString()+'원' : '-'}</td>
       <td style="padding:12px 16px">
         <span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">
-          ${planNameMap[m.plan_id] || '❌ 미연결'}
+          ${plan ? plan.name : '❌ 미연결'}
         </span>
       </td>
       <td style="padding:12px 16px;text-align:center">
         <button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`
+  }).join('');
 }
 
 async function openPlanMapModal(sktId, sktName) {
