@@ -819,6 +819,15 @@ tr.drag-over { border-top:2px solid var(--primary); }
               <option value="개통">개통</option>
               <option value="숨김">숨김</option>
             </select>
+            <select class="filter-select" id="inv-filter-group" onchange="loadInventory()" style="min-width:120px">
+              <option value="">전체 그룹</option>
+              <option value="any">그룹 지정됨</option>
+              <option value="A">A 숨김</option>
+              <option value="B">B 숨김</option>
+              <option value="C">C 숨김</option>
+              <option value="D">D 숨김</option>
+              <option value="E">E 숨김</option>
+            </select>
             <button class="btn btn-ghost btn-sm" onclick="invResetFilter()" style="display:flex;align-items:center;gap:4px">
               <i data-lucide="rotate-ccw" style="width:12px;height:12px"></i> 초기화
             </button>
@@ -1595,7 +1604,7 @@ function initDragSort() {
 }
 
 function invResetFilter() {
-  ['inv-date-from','inv-date-to','inv-filter-status','inv-search','inv-filter-model','inv-filter-color'].forEach(id => document.getElementById(id).value = '');
+  ['inv-date-from','inv-date-to','inv-filter-status','inv-search','inv-filter-model','inv-filter-color','inv-filter-group'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   document.getElementById('isc-all').classList.add('active');
   loadInventory();
@@ -1624,12 +1633,15 @@ async function loadInventory() {
   const dateTo = document.getElementById('inv-date-to').value;
   const modelFilter = document.getElementById('inv-filter-model').value;
   const colorFilter = document.getElementById('inv-filter-color').value;
+  const groupFilter = document.getElementById('inv-filter-group')?.value || '';
   let q = sb.from('inventory').select('*').order('created_at', {ascending: false});
   if (status) q = q.eq('status', status);
   if (modelFilter) q = q.eq('model', modelFilter);
   if (colorFilter) q = q.eq('color', colorFilter);
   if (dateFrom) q = q.gte('created_at', dateFrom);
   if (dateTo) q = q.lte('created_at', dateTo + 'T23:59:59');
+  if (groupFilter === 'any') q = q.not('visible_groups', 'is', null);
+  else if (groupFilter) q = q.contains('visible_groups', [groupFilter]);
   const { data } = await q;
   const all = data || [];
 
@@ -1668,7 +1680,8 @@ async function loadInventory() {
     ${['A','B','C','D','E'].map(g => `
       <td style="text-align:center">
         <input type="checkbox" ${(i.visible_groups||[]).includes(g)?'checked':''}
-          onchange="toggleInvGroup('${i.id}',this,'${g}',${JSON.stringify(i.visible_groups||[])})"
+          data-inv-id="${i.id}" data-group="${g}"
+          onchange="toggleInvGroup(this)"
           style="width:14px;height:14px;accent-color:var(--red);cursor:pointer"
           title="${g}그룹에 숨김"/>
       </td>`).join('')}
@@ -1787,19 +1800,18 @@ async function loadPartners() {
   </tr>`).join('');
 }
 
-async function toggleInvGroup(id, checkbox, group, currentGroups) {
-  let groups = [...(currentGroups || [])];
+async function toggleInvGroup(checkbox) {
+  const id = checkbox.getAttribute('data-inv-id');
+  const group = checkbox.getAttribute('data-group');
+  const { data } = await sb.from('inventory').select('visible_groups').eq('id', id).single();
+  let groups = [...(data?.visible_groups || [])];
   if (checkbox.checked) {
     if (!groups.includes(group)) groups.push(group);
   } else {
     groups = groups.filter(g => g !== group);
   }
   const { error } = await sb.from('inventory').update({ visible_groups: groups.length ? groups : null }).eq('id', id);
-  if (error) { toast('변경 실패'); checkbox.checked = !checkbox.checked; return; }
-  const label = checkbox.parentElement;
-  label.style.color = checkbox.checked ? 'var(--primary)' : 'var(--text-hint)';
-  // currentGroups 업데이트 (다음 토글을 위해 inline attribute 갱신)
-  checkbox.setAttribute('onchange', `toggleInvGroup('${id}',this,'${group}',${JSON.stringify(groups)})`);
+  if (error) { toast('저장 실패'); checkbox.checked = !checkbox.checked; }
 }
 
 async function updatePartnerGroup(id, group) {
