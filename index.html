@@ -2679,38 +2679,31 @@ async function downloadSupportExcel() {
   toast('엑셀 생성 중...');
   const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm');
 
-  const [{ data: models }, { data: plans }, { data: existing }] = await Promise.all([
+  const [{ data: models }, { data: plans }, { data: amounts }] = await Promise.all([
     sb.from('models').select('code').eq('is_active', true).order('code'),
-    sb.from('plans').select('id,name,plan_group').eq('is_active', true).order('sort_order'),
+    sb.from('plans').select('id,name,monthly_fee').order('monthly_fee', {ascending: false}).order('name'),
     sb.from('support_amount').select('model_code,plan_id,amount')
   ]);
 
-  // 기존 데이터 맵
-  const existMap = {};
-  existing?.forEach(e => { existMap[`${e.model_code}||${e.plan_id}`] = e.amount; });
+  const amtMap = {};
+  amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
 
-  // 헤더: 모델코드 | 요금제군 | 요금제명 | 지원금
-  const header = ['모델코드', '요금제군', '요금제명', '지원금'];
+  // 헤더행: 모델 | 요금제1 | 요금제2 ...
+  const header = ['모델', ...plans.map(p => `${p.name}\n${p.monthly_fee ? p.monthly_fee.toLocaleString()+'원' : '-'}`)];
   const rows = [header];
 
   models?.forEach(m => {
-    plans?.forEach(p => {
-      const amt = existMap[`${m.code}||${p.id}`] || 0;
-      rows.push([m.code, p.plan_group, p.name, amt]);
-    });
+    const row = [m.code, ...plans.map(p => amtMap[`${m.code}||${p.id}`] || '')];
+    rows.push(row);
   });
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:15},{wch:12},{wch:25},{wch:12}];
-
-  // 헤더 스타일
-  ['A1','B1','C1','D1'].forEach(cell => {
-    if (ws[cell]) ws[cell].s = { font:{bold:true}, fill:{fgColor:{rgb:'4F8EF7'}}, font:{bold:true,color:{rgb:'FFFFFF'}} };
-  });
+  ws['!cols'] = [{ wch: 14 }, ...plans.map(() => ({ wch: 10 }))];
+  ws['!rows'] = [{ hpt: 30 }];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '공통지원금');
-  XLSX.writeFile(wb, '공통지원금_양식.xlsx');
+  XLSX.writeFile(wb, '공통지원금_테이블.xlsx');
   toast('✓ 다운로드 완료');
 }
 
@@ -2724,8 +2717,8 @@ async function uploadSupportExcel(input) {
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-  // 헤더 제외
-  const dataRows = rows.slice(1).filter(r => r[0] && r[2] && r[3] !== undefined);
+  // 1행: ['모델', '요금제1', '요금제2', ...]
+  const planNames = rows[0].slice(1).map(h => String(h).split('\n')[0].trim());
 
   // 요금제명 → id 맵
   const { data: plans } = await sb.from('plans').select('id,name');
@@ -2734,13 +2727,16 @@ async function uploadSupportExcel(input) {
 
   const upserts = [];
   let skipped = 0;
-  dataRows.forEach(r => {
-    const modelCode = String(r[0]).trim();
-    const planName = String(r[2]).trim();
-    const amount = parseInt(r[3]) || 0;
-    const planId = planMap[planName];
-    if (!planId) { skipped++; return; }
-    upserts.push({ model_code: modelCode, plan_id: planId, amount });
+
+  rows.slice(1).forEach(row => {
+    const modelCode = String(row[0] || '').trim();
+    if (!modelCode) return;
+    planNames.forEach((planName, idx) => {
+      const amount = parseInt(String(row[idx + 1] || '').replace(/,/g, '')) || 0;
+      const planId = planMap[planName];
+      if (!planId) { skipped++; return; }
+      upserts.push({ model_code: modelCode, plan_id: planId, amount });
+    });
   });
 
   if (!upserts.length) { toast('저장할 데이터가 없어요'); return; }
@@ -2749,10 +2745,7 @@ async function uploadSupportExcel(input) {
   input.value = '';
   if (error) { toast('저장 실패: ' + error.message); return; }
   toast(`✓ ${upserts.length}건 저장 완료${skipped ? ` (${skipped}건 스킵)` : ''}`);
-
-  // 현재 선택된 모델 있으면 새로고침
-  const sel = document.getElementById('support-model-select');
-  if (sel?.value) selectSupportModel(sel.value);
+  renderSupportMatrix();
 }
 
 async function updateColorFilter() {
