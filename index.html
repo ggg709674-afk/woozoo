@@ -939,13 +939,14 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <table>
             <thead>
               <tr>
+                <th>제조사</th>
                 <th>모델코드</th>
                 <th>색상1</th><th>색상2</th><th>색상3</th>
                 <th>색상4</th><th>색상5</th><th>색상6</th>
                 <th>단가</th><th>상태</th><th>관리</th>
               </tr>
             </thead>
-            <tbody id="model-tbody"><tr><td colspan="10" class="loading">로딩중...</td></tr></tbody>
+            <tbody id="model-tbody"><tr><td colspan="11" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1081,6 +1082,46 @@ tr.drag-over { border-top:2px solid var(--primary); }
       </div><!-- settl-light-wrap -->
     </div>
 
+    <!-- SKT 요금제 매핑 -->
+    <div class="page" id="page-planmap">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div class="page-title">SKT 요금제 매핑</div>
+          <div class="page-sub">SKT 요금제 ↔ 우주커넥트 요금제 연결 관리</div>
+        </div>
+        <button class="btn btn-primary" onclick="openPlanMapModal(null,null)" style="display:flex;align-items:center;gap:6px">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> 매핑 추가
+        </button>
+      </div>
+      <div class="card" style="margin-bottom:16px;padding:16px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">SKT 알려진 요금제 목록</div>
+            <div style="font-size:12px;color:var(--text-hint);margin-top:2px">클릭하면 자동으로 입력됩니다</div>
+          </div>
+          <button class="btn btn-outline" onclick="showSktPlanList()" style="display:flex;align-items:center;gap:6px">
+            <i data-lucide="list" style="width:14px;height:14px"></i> SKT 요금제 보기
+          </button>
+        </div>
+        <div id="skt-plan-tags" style="display:none;flex-wrap:wrap;gap:6px;margin-top:12px"></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:var(--border-light)">
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT 요금제명</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT ID</th>
+              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">우주커넥트 요금제</th>
+              <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">관리</th>
+            </tr>
+          </thead>
+          <tbody id="planmap-tbody">
+            <tr><td colspan="4" class="empty">매핑 데이터가 없습니다</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- 공통지원금 -->
     <div class="page" id="page-support">
       <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -1109,49 +1150,9 @@ tr.drag-over { border-top:2px solid var(--primary); }
       </div>
     </div>
 
-    <!-- SKT 요금제 매핑 -->
-    <div class="page" id="page-planmap">
-      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div>
-          <div class="page-title">SKT 요금제 매핑</div>
-          <div class="page-sub">SKT 요금제명 ↔ 우주커넥트 요금제 연결 관리</div>
-        </div>
-        <button class="btn btn-primary" onclick="openPlanMapModal(null)" style="display:flex;align-items:center;gap:6px">
-          <i data-lucide="plus" style="width:14px;height:14px"></i> 매핑 추가
-        </button>
-      </div>
-      <div class="card" style="margin-bottom:16px;padding:16px 20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-          <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text)">SKT 알려진 요금제 목록</div>
-            <div style="font-size:12px;color:var(--text-hint);margin-top:2px">클릭하면 자동으로 입력됩니다</div>
-          </div>
-          <button class="btn btn-outline" onclick="showSktPlanList()" style="display:flex;align-items:center;gap:6px">
-            <i data-lucide="list" style="width:14px;height:14px"></i> SKT 요금제 보기
-          </button>
-        </div>
-        <div id="skt-plan-tags" style="display:none;flex-wrap:wrap;gap:6px;margin-top:12px"></div>
-      </div>
-      <div class="card" style="padding:0;overflow:hidden">
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead>
-            <tr style="background:var(--border-light)">
-              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT 요금제명</th>
-              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT ID</th>
-              <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">우주커넥트 요금제</th>
-              <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">관리</th>
-            </tr>
-          </thead>
-          <tbody id="planmap-tbody2">
-            <tr><td colspan="4" class="empty">매핑 데이터가 없습니다</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
   </div>
 </div>
-<!-- 모달들 -->
+<!-- 요금제 모달 -->
 <div class="modal-overlay" id="plan-modal">
   <div class="modal" style="width:440px">
     <div class="modal-title" id="plan-modal-title">요금제 추가</div>
@@ -1189,6 +1190,14 @@ tr.drag-over { border-top:2px solid var(--primary); }
 <div class="modal-overlay" id="model-modal">
   <div class="modal" style="width:520px">
     <div class="modal-title" id="model-modal-title">모델 추가</div>
+    <div class="modal-field">
+      <label class="modal-label">제조사 *</label>
+      <select class="modal-input" id="m-manufacturer" style="cursor:pointer;appearance:none">
+        <option value="삼성">삼성</option>
+        <option value="애플">애플</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
     <div class="modal-field">
       <label class="modal-label">모델코드 *</label>
       <input class="modal-input" id="m-code" placeholder="예) S942_256" style="font-family:monospace;font-weight:700"/>
@@ -1266,24 +1275,21 @@ tr.drag-over { border-top:2px solid var(--primary); }
   </div>
 </div>
 
-<!-- 요금제 매핑 추가 모달 -->
+<!-- SKT 요금제 매핑 모달 -->
 <div class="modal-overlay" id="planmap-modal">
-  <div class="modal" style="max-width:480px">
+  <div class="modal" style="width:480px">
     <div class="modal-title">요금제 매핑 추가</div>
     <div class="modal-field">
-      <label class="modal-label">SKT 요금제명 <span style="color:var(--text-hint);font-weight:400">(SKT 홈페이지에 표시되는 이름)</span></label>
-      <input class="modal-input" id="pm-skt-name" placeholder="예) 5GX 플래티넘(넷플릭스)" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub)"/>
+      <label class="modal-label">SKT 요금제명</label>
+      <input class="modal-input" id="pm-skt-name" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub)"/>
     </div>
     <div class="modal-field">
-      <label class="modal-label">SKT 요금제 ID <span style="color:var(--text-hint);font-weight:400">(URL의 prodId 값)</span></label>
-      <input class="modal-input" id="pm-skt-id" placeholder="예) NA00008489" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub);font-family:monospace"/>
-      <div style="font-size:11px;color:var(--text-hint);margin-top:4px">
-        💡 shop.tworld.co.kr/notice 에서 요금제 선택 후 URL에서 prodId 확인
-      </div>
+      <label class="modal-label">SKT 요금제 ID</label>
+      <input class="modal-input" id="pm-skt-id" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub);font-family:monospace"/>
     </div>
     <div class="modal-field">
-      <label class="modal-label">내부 요금제 연결</label>
-      <select class="modal-input" id="pm-plan-id" style="cursor:pointer">
+      <label class="modal-label">우주커넥트 요금제 *</label>
+      <select class="modal-input" id="pm-plan-id" style="cursor:pointer;appearance:none">
         <option value="">-- 요금제 선택 --</option>
       </select>
     </div>
@@ -1421,7 +1427,6 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   const items = document.querySelectorAll('.nav-item');
   const map = {dashboard:0,settlement:1,'stock-in':2,inventory:3,orders:4,partners:5,support:6,models:7,plans:8,members:9,planmap:10};
-  // planmap은 nav-item 중 마지막
   if (map[name] !== undefined) items[map[name]].classList.add('active');
   location.hash = name;
   if (name === 'dashboard') loadDashboard();
@@ -1435,9 +1440,9 @@ function showPage(name) {
   if (name === 'models') loadModels();
   if (name === 'plans') loadPlans();
   if (name === 'support') loadSupport();
+  if (name === 'planmap') loadPlanMap();
   if (name === 'members') loadMembers();
   if (name === 'settlement') loadSettlement();
-  if (name === 'planmap') loadPlanMap();
 }
 
 function toast(msg) {
@@ -1910,17 +1915,20 @@ let editModelId = null;
 async function loadModels() {
   const { data } = await sb.from('models').select('*').order('code');
   const tbody = document.getElementById('model-tbody');
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty">등록된 모델이 없어요</td></tr>'; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty">등록된 모델이 없어요</td></tr>'; return; }
   tbody.innerHTML = data.map(m => {
     const active = m.is_active ? '<span class="badge badge-done">활성</span>' : '<span class="badge badge-hidden">비활성</span>';
+    const mfr = m.manufacturer || '삼성';
+    const mfrColor = mfr === '삼성' ? 'var(--primary)' : mfr === '애플' ? 'var(--text)' : 'var(--orange)';
     return `<tr>
+      <td><span style="background:var(--border-light);color:${mfrColor};padding:3px 10px;border-radius:100px;font-size:12px;font-weight:700">${mfr}</span></td>
       <td style="font-family:monospace;font-weight:700;color:var(--primary)">${m.code}</td>
       <td style="font-size:12px">${m.color1||'-'}</td><td style="font-size:12px">${m.color2||'-'}</td><td style="font-size:12px">${m.color3||'-'}</td>
       <td style="font-size:12px">${m.color4||'-'}</td><td style="font-size:12px">${m.color5||'-'}</td><td style="font-size:12px">${m.color6||'-'}</td>
       <td style="font-weight:700;color:var(--text)">${m.price ? m.price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">미입력</span>'}</td>
       <td>${active}</td>
       <td style="display:flex;gap:6px">
-        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}',${m.price||0})">수정</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}',${m.price||0},'${m.manufacturer||'삼성'}')">수정</button>
         <button class="btn btn-danger btn-sm" onclick="toggleModel('${m.id}',${m.is_active})">${m.is_active?'비활성화':'활성화'}</button>
       </td>
     </tr>`;
@@ -1931,16 +1939,18 @@ function openAddModel() {
   editModelId = null;
   document.getElementById('model-modal-title').textContent = '모델 추가';
   ['m-code','m-c1','m-c2','m-c3','m-c4','m-c5','m-c6','m-price'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-manufacturer').value = '삼성';
   document.getElementById('m-code').readOnly = false;
   document.getElementById('model-modal').classList.add('open');
   setTimeout(() => document.getElementById('m-code').focus(), 100);
 }
 
-function openEditModel(id, code, c1, c2, c3, c4, c5, c6, price) {
+function openEditModel(id, code, c1, c2, c3, c4, c5, c6, price, manufacturer) {
   editModelId = id;
   document.getElementById('model-modal-title').textContent = '모델 수정';
   document.getElementById('m-code').value = code;
   document.getElementById('m-code').readOnly = true;
+  document.getElementById('m-manufacturer').value = manufacturer || '삼성';
   ['m-c1','m-c2','m-c3','m-c4','m-c5','m-c6'].forEach((id,i) => document.getElementById(id).value = [c1,c2,c3,c4,c5,c6][i]);
   document.getElementById('m-price').value = price || '';
   document.getElementById('model-modal').classList.add('open');
@@ -1950,7 +1960,7 @@ async function saveModel() {
   const code = document.getElementById('m-code').value.trim().toUpperCase();
   if (!code) { toast('모델코드를 입력해주세요'); return; }
   const price = parseInt(document.getElementById('m-price').value) || 0;
-  const payload = { code, price, color1:document.getElementById('m-c1').value.trim()||null, color2:document.getElementById('m-c2').value.trim()||null, color3:document.getElementById('m-c3').value.trim()||null, color4:document.getElementById('m-c4').value.trim()||null, color5:document.getElementById('m-c5').value.trim()||null, color6:document.getElementById('m-c6').value.trim()||null };
+  const payload = { code, price, manufacturer: document.getElementById('m-manufacturer').value, color1:document.getElementById('m-c1').value.trim()||null, color2:document.getElementById('m-c2').value.trim()||null, color3:document.getElementById('m-c3').value.trim()||null, color4:document.getElementById('m-c4').value.trim()||null, color5:document.getElementById('m-c5').value.trim()||null, color6:document.getElementById('m-c6').value.trim()||null };
   let error;
   if (editModelId) { ({error} = await sb.from('models').update(payload).eq('id', editModelId)); }
   else { ({error} = await sb.from('models').insert(payload)); }
@@ -2633,36 +2643,34 @@ async function saveSupportCell(input) {
   );
 }
 
-// ─── 요금제 매핑 ───
+// ─── 공통지원금 ───
+let supportModels = [];
+let supportPlans = [];
+let supportData = {};
+let supportSelectedModel = null;
+
+// ─── SKT 요금제 매핑 ───
 async function loadPlanMap() {
   const { data: maps } = await sb.from('plan_mapping').select('*').order('created_at', { ascending: false });
   const { data: plans } = await sb.from('plans').select('id,name').eq('is_active', true).order('sort_order');
-
-  const tbody = document.getElementById('planmap-tbody2');
+  const tbody = document.getElementById('planmap-tbody');
   if (!maps || maps.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">매핑 데이터가 없습니다. 추가 버튼을 눌러 매핑을 등록하세요.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">매핑 데이터가 없습니다. 위에서 SKT 요금제를 선택하세요.</td></tr>';
     return;
   }
-
-  const planMap = {};
-  plans?.forEach(p => planMap[p.id] = p.name);
-
+  const planNameMap = {};
+  plans?.forEach(p => planNameMap[p.id] = p.name);
   tbody.innerHTML = maps.map(m => `
     <tr style="border-bottom:1px solid var(--border-light)">
       <td style="padding:12px 16px;font-weight:600">${m.skt_plan_name}</td>
       <td style="padding:12px 16px;font-family:monospace;color:var(--text-sub);font-size:12px">${m.skt_plan_id}</td>
       <td style="padding:12px 16px">
         <span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">
-          ${planMap[m.plan_id] || '❌ 미연결'}
+          ${planNameMap[m.plan_id] || '❌ 미연결'}
         </span>
       </td>
       <td style="padding:12px 16px;text-align:center">
-        <span style="background:${m.is_active ? 'var(--green-bg)' : 'var(--border-light)'};color:${m.is_active ? 'var(--green)' : 'var(--text-hint)'};padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">
-          ${m.is_active ? '활성' : '비활성'}
-        </span>
-      </td>
-      <td style="padding:12px 16px;text-align:center">
-        <button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">삭제</button>
+        <button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button>
       </td>
     </tr>
   `).join('');
@@ -2672,13 +2680,31 @@ async function openPlanMapModal(sktId, sktName) {
   const { data: plans } = await sb.from('plans').select('id,name').eq('is_active', true).order('sort_order');
   const sel = document.getElementById('pm-plan-id');
   sel.innerHTML = '<option value="">-- 요금제 선택 --</option>';
-  plans?.forEach(p => {
-    sel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-  });
+  plans?.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
   document.getElementById('pm-skt-name').value = sktName || '';
   document.getElementById('pm-skt-id').value = sktId || '';
   document.getElementById('planmap-modal').classList.add('open');
   lucide.createIcons();
+}
+
+async function savePlanMap() {
+  const sktName = document.getElementById('pm-skt-name').value.trim();
+  const sktId   = document.getElementById('pm-skt-id').value.trim();
+  const planId  = document.getElementById('pm-plan-id').value;
+  if (!sktName || !sktId) { toast('SKT 요금제를 선택해주세요'); return; }
+  if (!planId) { toast('우주커넥트 요금제를 선택해주세요'); return; }
+  const { error } = await sb.from('plan_mapping').insert({ skt_plan_name: sktName, skt_plan_id: sktId, plan_id: planId, is_active: true });
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  toast('✓ 매핑 저장 완료');
+  closeModal('planmap-modal');
+  loadPlanMap();
+}
+
+async function deletePlanMap(id) {
+  if (!confirm('이 매핑을 삭제하시겠습니까?')) return;
+  await sb.from('plan_mapping').delete().eq('id', id);
+  toast('✓ 삭제 완료');
+  loadPlanMap();
 }
 
 function showSktPlanList() {
@@ -2720,39 +2746,6 @@ function showSktPlanList() {
     </span>
   `).join('');
 }
-
-async function savePlanMap() {
-  const sktName = document.getElementById('pm-skt-name').value.trim();
-  const sktId   = document.getElementById('pm-skt-id').value.trim();
-  const planId  = document.getElementById('pm-plan-id').value;
-
-  if (!sktName || !sktId || !planId) { toast('모든 항목을 입력해주세요'); return; }
-
-  const { error } = await sb.from('plan_mapping').insert({
-    skt_plan_name: sktName,
-    skt_plan_id:   sktId,
-    plan_id:       planId,
-    is_active:     true,
-  });
-
-  if (error) { toast('저장 실패: ' + error.message); return; }
-  toast('✓ 매핑이 저장되었습니다');
-  closeModal('planmap-modal');
-  loadPlanMap();
-}
-
-async function deletePlanMap(id) {
-  if (!confirm('이 매핑을 삭제하시겠습니까?')) return;
-  await sb.from('plan_mapping').delete().eq('id', id);
-  toast('✓ 삭제되었습니다');
-  loadPlanMap();
-}
-
-
-let supportModels = [];
-let supportPlans = [];
-let supportData = {};
-let supportSelectedModel = null;
 
 async function loadSupport() {
   renderSupportMatrix();
