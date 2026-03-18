@@ -2512,8 +2512,8 @@ async function renderSupportMatrix() {
 
   const amtMap = {};
   amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
-  console.log('A566 5G슬림:', amtMap['A566||213c1398-f680-4ff4-a071-ece21e52ddbb']);
-  console.log('총 amount 수:', amounts?.length);
+
+  let html = `<table style="border-collapse:collapse;font-size:12px;white-space:nowrap">
     <thead>
       <tr>
         <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;top:0;z-index:4;min-width:100px;box-shadow:2px 0 4px rgba(0,0,0,0.08);text-align:center">모델</th>
