@@ -328,6 +328,34 @@ body.dark .dd-item { color: var(--text); background: var(--white); }
 body.dark .dd-item:hover { background: var(--primary-light); color: var(--primary); }
 body.dark .dropdown { background: var(--white); border-color: var(--border); }
 body.dark .search-wrap .dropdown { box-shadow: var(--shadow-md); }
+
+/* 테이블 전체 */
+body.dark table thead th { color: var(--text-hint) !important; background: var(--border-light) !important; }
+body.dark table tbody td { color: var(--text) !important; }
+body.dark table tbody tr:hover { background: rgba(79,142,247,0.06) !important; }
+body.dark table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
+
+/* 검색/필터 입력 */
+body.dark .filter-select { background: var(--white); border-color: var(--border); color: var(--text); }
+body.dark .search-input-bar { background: var(--white); border-color: var(--border); color: var(--text); }
+body.dark .search-input-bar::placeholder { color: var(--text-hint); }
+
+/* 카드 내부 텍스트 */
+body.dark .summary-value { color: var(--text); }
+body.dark .summary-label { color: var(--text-sub); }
+body.dark .card-title-sub { color: var(--text-hint); }
+
+/* 입고 등록 */
+body.dark .search-input { background: var(--white); border-color: var(--border); color: var(--text); }
+body.dark .brand-tag.apple-tag { background: var(--border-light); color: var(--text-sub); }
+body.dark .brand-tag.samsung-tag { background: var(--primary-light); color: var(--primary); }
+
+/* 재고현황 탭 border */
+body.dark .inv-tab { border-bottom-color: transparent; }
+body.dark .inv-tab.active { border-bottom-color: var(--primary); }
+
+/* 드래그 핸들 */
+body.dark .drag-handle { color: var(--text-hint); }
 .stl-th { padding:7px 8px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--text-hint);text-align:center;border-right:1px solid var(--border);border-bottom:2px solid var(--border); }
 .stl-td { padding:0;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border-light);vertical-align:middle;text-align:center; }
 .stl-input { height:30px;border:none;padding:0 7px;font-size:12px;font-family:inherit;outline:none;background:transparent;width:100%;display:block;text-align:center; }
