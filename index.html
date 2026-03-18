@@ -1080,7 +1080,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <div class="page-title">공통지원금</div>
           <div class="page-sub">모델별 요금제 공통지원금 관리</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center" id="support-edit-btns">
           <button class="btn btn-outline" onclick="downloadSupportExcel()" style="display:flex;align-items:center;gap:6px">
             <i data-lucide="download" style="width:14px;height:14px"></i> 양식 다운로드
           </button>
@@ -1093,19 +1093,38 @@ tr.drag-over { border-top:2px solid var(--primary); }
           </button>
         </div>
       </div>
-      <!-- 모델 드롭다운 -->
-      <div class="card" style="margin-bottom:12px;padding:14px 16px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:13px;font-weight:700;color:var(--text-sub);white-space:nowrap">모델 선택</span>
-          <select class="select" id="support-model-select" onchange="selectSupportModel(this.value)" style="width:220px">
-            <option value="">-- 모델을 선택하세요 --</option>
-          </select>
+
+      <!-- 탭 -->
+      <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:16px">
+        <button class="inv-tab active" id="support-tab-edit" onclick="switchSupportTab('edit')">지원금 입력</button>
+        <button class="inv-tab" id="support-tab-table" onclick="switchSupportTab('table')">지원금 테이블</button>
+      </div>
+
+      <!-- 입력 탭 -->
+      <div id="support-panel-edit">
+        <div class="card" style="margin-bottom:12px;padding:14px 16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:13px;font-weight:700;color:var(--text-sub);white-space:nowrap">모델 선택</span>
+            <select class="select" id="support-model-select" onchange="selectSupportModel(this.value)" style="width:220px">
+              <option value="">-- 모델을 선택하세요 --</option>
+            </select>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;max-width:800px">
+          <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
+            위에서 모델을 선택하세요
+          </div>
         </div>
       </div>
-      <!-- 요금제별 지원금 -->
-      <div class="card" style="padding:0;overflow:hidden;max-width:800px">
-        <div id="support-table-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
-          위에서 모델을 선택하세요
+
+      <!-- 테이블 탭 -->
+      <div id="support-panel-table" style="display:none">
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="overflow-x:auto">
+            <div id="support-matrix-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
+              로딩중...
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2489,6 +2508,57 @@ async function loadTkeyFile(input) {
   }
   renderSettlTable();
   input.value = '';
+}
+
+function switchSupportTab(tab) {
+  document.getElementById('support-panel-edit').style.display = tab === 'edit' ? '' : 'none';
+  document.getElementById('support-panel-table').style.display = tab === 'table' ? '' : 'none';
+  document.getElementById('support-tab-edit').classList.toggle('active', tab === 'edit');
+  document.getElementById('support-tab-table').classList.toggle('active', tab === 'table');
+  document.getElementById('support-edit-btns').style.display = tab === 'edit' ? 'flex' : 'none';
+  if (tab === 'table') renderSupportMatrix();
+}
+
+async function renderSupportMatrix() {
+  const wrap = document.getElementById('support-matrix-wrap');
+  wrap.innerHTML = '<div class="loading">로딩중...</div>';
+
+  const [{ data: models }, { data: plans }, { data: amounts }] = await Promise.all([
+    sb.from('models').select('code').eq('is_active', true).order('code'),
+    sb.from('plans').select('id,name,monthly_fee,plan_group').eq('is_active', true).order('monthly_fee', {ascending: false}),
+    sb.from('support_amount').select('model_code,plan_id,amount')
+  ]);
+
+  if (!models?.length || !plans?.length) { wrap.innerHTML = '<div class="empty">데이터가 없어요</div>'; return; }
+
+  // 지원금 맵
+  const amtMap = {};
+  amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
+
+  let html = `<table style="border-collapse:collapse;font-size:12px;white-space:nowrap">
+    <thead>
+      <tr>
+        <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;z-index:2;min-width:100px">모델</th>
+        ${plans.map(p => `
+          <th style="padding:6px 8px;background:var(--border-light);border:1px solid var(--border);text-align:center;min-width:80px">
+            <div style="font-weight:700;color:var(--text);font-size:11px">${p.name}</div>
+            <div style="font-size:10px;color:var(--text-hint);margin-top:2px">${p.monthly_fee ? p.monthly_fee.toLocaleString()+'원' : '-'}</div>
+          </th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${models.map((m, mi) => `
+        <tr style="${mi%2===0?'background:var(--white)':'background:var(--border-light)'}">
+          <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700;color:var(--primary);font-family:monospace;position:sticky;left:0;z-index:1;background:inherit">${m.code}</td>
+          ${plans.map(p => {
+            const amt = amtMap[`${m.code}||${p.id}`];
+            return `<td style="padding:7px 8px;border:1px solid var(--border);text-align:center;color:${amt?'var(--text)':'var(--text-hint)'};font-weight:${amt?'600':'400'}">${amt ? amt.toLocaleString() : '-'}</td>`;
+          }).join('')}
+        </tr>`).join('')}
+    </tbody>
+  </table>`;
+
+  wrap.innerHTML = html;
 }
 
 // ─── 공통지원금 ───
