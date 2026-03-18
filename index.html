@@ -294,68 +294,86 @@ body.dark .settl-light-wrap textarea { color: #1A202C !important; background: #F
 body.dark .settl-light-wrap .match-ok { background: rgba(16,185,129,0.08) !important; color: #10B981 !important; }
 body.dark .settl-light-wrap .match-no { background: rgba(239,68,68,0.08) !important; color: #EF4444 !important; }
 body.dark .settl-light-wrap .tkey-ok { background: rgba(245,158,11,0.08) !important; color: #F59E0B !important; }
-body.dark .settl-light-wrap div[style*="color:var(--text)"] { color: #1A202C !important; }
-body.dark .settl-light-wrap div[style*="color:var(--text-hint)"] { color: #94A3B8 !important; }
+body.dark .settl-light-wrap .btn-primary { background: var(--primary) !important; color: #fff !important; }
+body.dark .settl-light-wrap label[style*="background:var(--primary)"] { background: var(--primary) !important; }
 
 /* ─── 다크모드 전체 보완 ─── */
-body.dark tbody td { color: var(--text); }
-body.dark thead th { color: var(--text-hint); background: var(--border-light) !important; }
-body.dark .card { background: var(--white); border-color: var(--border); }
-body.dark .summary-card { background: var(--white); border-color: var(--border); }
-body.dark .inv-stat-card { background: var(--white); border-color: var(--border); }
-body.dark .add-panel { background: var(--white); border-color: var(--border); }
-body.dark .card-title { color: var(--text); }
-body.dark .panel-label { color: var(--text-sub); }
-body.dark .detail-label { color: var(--text-hint); }
-body.dark .detail-value { color: var(--text); }
-body.dark .badge-stock { background: var(--primary-light); color: #93C5FD; }
-body.dark .badge-out { background: var(--orange-bg); color: #FCD34D; }
-body.dark .badge-done { background: var(--green-bg); color: #6EE7B7; }
-body.dark .badge-hidden { background: var(--border-light); color: var(--text-sub); }
-body.dark .badge-wait { background: var(--border-light); color: var(--text-sub); border-color: var(--border); }
-body.dark .badge-cancel { background: var(--red-bg); color: #FCA5A5; }
-body.dark .btn-outline { border-color: var(--border); color: var(--text-sub); }
-body.dark .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-body.dark .inv-tab { color: var(--text-hint); }
-body.dark .inv-tab.active { color: var(--primary); }
-body.dark .empty { color: var(--text-hint); }
-body.dark .loading { color: var(--text-hint); }
-body.dark .modal-title { color: var(--text); }
-body.dark .modal-label { color: var(--text-sub); }
-body.dark .serial-ok { color: var(--green); }
-body.dark .barcode-input.scanned { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-body.dark .dd-item { color: var(--text); background: var(--white); }
-body.dark .dd-item:hover { background: var(--primary-light); color: var(--primary); }
-body.dark .dropdown { background: var(--white); border-color: var(--border); }
-body.dark .search-wrap .dropdown { box-shadow: var(--shadow-md); }
+/* 레이아웃 */
+body.dark .card { background: var(--white) !important; border-color: var(--border) !important; }
+body.dark .add-panel { background: var(--white) !important; border-color: var(--border) !important; }
+body.dark .summary-card { background: var(--white) !important; border-color: var(--border) !important; }
+body.dark .inv-stat-card { background: var(--white) !important; border-color: var(--border) !important; }
+body.dark .modal { background: #1A2030 !important; }
+body.dark .modal-overlay { background: rgba(0,0,0,0.6); }
 
-/* 테이블 전체 */
+/* 텍스트 */
+body.dark .page-title { color: var(--text) !important; }
+body.dark .page-sub { color: var(--text-sub) !important; }
+body.dark .card-title { color: var(--text) !important; }
+body.dark .card-title-sub { color: var(--text-hint) !important; }
+body.dark .summary-label { color: var(--text-sub) !important; }
+body.dark .summary-value { color: var(--text) !important; }
+body.dark .panel-label { color: var(--text-sub) !important; }
+body.dark .detail-label { color: var(--text-hint) !important; }
+body.dark .detail-value { color: var(--text) !important; }
+body.dark .modal-title { color: var(--text) !important; }
+body.dark .modal-label { color: var(--text-sub) !important; }
+body.dark .empty { color: var(--text-hint) !important; }
+body.dark .loading { color: var(--text-hint) !important; }
+
+/* 테이블 */
 body.dark table thead th { color: var(--text-hint) !important; background: var(--border-light) !important; }
 body.dark table tbody td { color: var(--text) !important; }
 body.dark table tbody tr:hover { background: rgba(79,142,247,0.06) !important; }
 body.dark table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--primary); }
+body.dark table tbody tr:last-child td { border-bottom: none; }
 
-/* 검색/필터 입력 */
-body.dark .filter-select { background: var(--white); border-color: var(--border); color: var(--text); }
-body.dark .search-input-bar { background: var(--white); border-color: var(--border); color: var(--text); }
-body.dark .search-input-bar::placeholder { color: var(--text-hint); }
+/* 입력 요소 */
+body.dark .filter-select,
+body.dark .search-input-bar,
+body.dark .search-input,
+body.dark .input,
+body.dark .select { background: var(--white) !important; border-color: var(--border) !important; color: var(--text) !important; }
+body.dark .search-input-bar::placeholder,
+body.dark .search-input::placeholder { color: var(--text-hint) !important; }
+body.dark .modal-input { background: #0F1117 !important; border-color: rgba(255,255,255,0.1) !important; color: var(--text) !important; }
+body.dark .barcode-input { background: var(--white) !important; border-color: var(--border) !important; color: var(--text) !important; }
+body.dark .barcode-input.scanned { background: var(--green-bg) !important; border-color: var(--green) !important; color: var(--green) !important; }
 
-/* 카드 내부 텍스트 */
-body.dark .summary-value { color: var(--text); }
-body.dark .summary-label { color: var(--text-sub); }
-body.dark .card-title-sub { color: var(--text-hint); }
+/* 버튼 */
+body.dark .btn-outline { background: transparent !important; border-color: rgba(255,255,255,0.15) !important; color: var(--text-sub) !important; }
+body.dark .btn-outline:hover { border-color: var(--primary) !important; color: var(--primary) !important; background: var(--primary-light) !important; }
+body.dark .btn-ghost { color: var(--text-sub) !important; }
+body.dark .btn-ghost:hover { background: var(--border-light) !important; color: var(--text) !important; }
+body.dark .btn-dark { background: #334155 !important; color: #E8EAF0 !important; }
+body.dark .btn-danger { background: var(--red-bg) !important; color: var(--red) !important; }
 
-/* 입고 등록 */
-body.dark .search-input { background: var(--white); border-color: var(--border); color: var(--text); }
-body.dark .brand-tag.apple-tag { background: var(--border-light); color: var(--text-sub); }
-body.dark .brand-tag.samsung-tag { background: var(--primary-light); color: var(--primary); }
+/* 뱃지 */
+body.dark .badge-stock { background: rgba(79,142,247,0.15) !important; color: #93C5FD !important; }
+body.dark .badge-out { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; }
+body.dark .badge-done { background: rgba(52,211,153,0.15) !important; color: #6EE7B7 !important; }
+body.dark .badge-hidden { background: var(--border-light) !important; color: var(--text-sub) !important; }
+body.dark .badge-wait { background: var(--border-light) !important; color: var(--text-sub) !important; border-color: var(--border) !important; }
+body.dark .badge-cancel { background: rgba(248,113,113,0.15) !important; color: #FCA5A5 !important; }
 
-/* 재고현황 탭 border */
-body.dark .inv-tab { border-bottom-color: transparent; }
-body.dark .inv-tab.active { border-bottom-color: var(--primary); }
+/* 드롭다운 */
+body.dark .dropdown { background: var(--white) !important; border-color: var(--border) !important; box-shadow: var(--shadow-md) !important; }
+body.dark .dd-item { color: var(--text) !important; }
+body.dark .dd-item:hover, body.dark .dd-item.hl { background: var(--primary-light) !important; color: var(--primary) !important; }
+body.dark .dd-empty { color: var(--text-hint) !important; }
 
-/* 드래그 핸들 */
-body.dark .drag-handle { color: var(--text-hint); }
+/* 탭 */
+body.dark .inv-tab { color: var(--text-hint) !important; border-bottom-color: transparent !important; }
+body.dark .inv-tab:hover { color: var(--text) !important; }
+body.dark .inv-tab.active { color: var(--primary) !important; border-bottom-color: var(--primary) !important; }
+
+/* 기타 */
+body.dark .drag-handle { color: var(--text-hint) !important; }
+body.dark .serial-ok { color: var(--green) !important; }
+body.dark .brand-tag.apple-tag { background: var(--border-light) !important; color: var(--text-sub) !important; }
+body.dark .brand-tag.samsung-tag { background: var(--primary-light) !important; color: var(--primary) !important; }
+body.dark .sel-model-text { background: var(--primary-light) !important; color: var(--primary) !important; }
+body.dark .toast { background: #E8EAF0 !important; color: #1A202C !important; }
 .stl-th { padding:7px 8px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--text-hint);text-align:center;border-right:1px solid var(--border);border-bottom:2px solid var(--border); }
 .stl-td { padding:0;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border-light);vertical-align:middle;text-align:center; }
 .stl-input { height:30px;border:none;padding:0 7px;font-size:12px;font-family:inherit;outline:none;background:transparent;width:100%;display:block;text-align:center; }
@@ -445,9 +463,17 @@ tr.drag-over { border-top:2px solid var(--primary); }
 <!-- 앱 -->
 <div class="app" id="app">
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-text">우주<span>커넥트</span></div>
-      <div class="sidebar-logo-sub">재고관리 시스템</div>
+    <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="sidebar-logo-text">우주<span>커넥트</span></div>
+        <div class="sidebar-logo-sub">재고관리 시스템</div>
+      </div>
+      <button id="theme-toggle" onclick="toggleTheme()" title="다크/라이트 전환"
+        style="background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);transition:all .15s;flex-shrink:0"
+        onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.8)'"
+        onmouseout="this.style.background='none';this.style.color='rgba(255,255,255,0.4)'">
+        <i data-lucide="sun" id="theme-icon" style="width:15px;height:15px"></i>
+      </button>
     </div>
     <nav class="nav">
       <div class="nav-section">메인</div>
@@ -473,14 +499,9 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <div class="sidebar-user-role" id="sidebar-role">-</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <button class="logout-btn" onclick="doLogout()">
-          <i data-lucide="log-out" style="width:14px;height:14px"></i> 로그아웃
-        </button>
-        <button id="theme-toggle" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);transition:all .15s" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
-          <i data-lucide="sun" id="theme-icon" style="width:13px;height:13px"></i>
-        </button>
-      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <i data-lucide="log-out" style="width:14px;height:14px"></i> 로그아웃
+      </button>
     </div>
   </div>
 
