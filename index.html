@@ -838,7 +838,11 @@ tr.drag-over { border-top:2px solid var(--primary); }
                   <th style="width:80px">출고점명</th>
                   <th style="width:70px">개통일</th>
                   <th style="width:80px">개통점</th>
-                  <th style="width:120px">그룹</th>
+                  <th style="width:36px;text-align:center">A</th>
+                  <th style="width:36px;text-align:center">B</th>
+                  <th style="width:36px;text-align:center">C</th>
+                  <th style="width:36px;text-align:center">D</th>
+                  <th style="width:36px;text-align:center">E</th>
                   <th style="width:70px">관리</th>
                 </tr>
               </thead>
@@ -1652,7 +1656,7 @@ async function loadInventory() {
   const filtered = all.filter(i => !search || i.model?.toLowerCase().includes(search) || i.serial_number?.toLowerCase().includes(search) || i.color?.toLowerCase().includes(search));
   document.getElementById('inv-result-count').textContent = `${filtered.length}건 표시중`;
   const tbody = document.getElementById('inv-tbody');
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="12" class="empty">재고 없음</td></tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="17" class="empty">재고 없음</td></tr>'; return; }
   tbody.innerHTML = filtered.map(i => `<tr>
     <td>${statusBadge(i.status)}</td>
     <td style="font-size:12px;white-space:nowrap;color:var(--text-sub)">${fmtDate(i.stock_date || i.created_at)}</td>
@@ -1665,15 +1669,13 @@ async function loadInventory() {
     <td style="font-size:12px">${i.shipped_to || '-'}</td>
     <td style="font-size:12px;white-space:nowrap;color:var(--green)">${i.activated_date ? fmtDate(i.activated_date) : '-'}</td>
     <td style="font-size:12px">${i.activated_at || '-'}</td>
-    <td style="white-space:nowrap">
-      ${['A','B','C','D','E'].map(g => `
-        <label style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;font-size:11px;font-weight:700;cursor:pointer;color:${(i.visible_groups||[]).includes(g)?'var(--primary)':'var(--text-hint)'}">
-          <input type="checkbox" ${(i.visible_groups||[]).includes(g)?'checked':''} 
-            onchange="toggleInvGroup('${i.id}',this,'${g}',${JSON.stringify(i.visible_groups||[])})"
-            style="width:13px;height:13px;accent-color:var(--primary);cursor:pointer"/>
-          ${g}
-        </label>`).join('')}
-    </td>
+    ${['A','B','C','D','E'].map(g => `
+      <td style="text-align:center">
+        <input type="checkbox" ${(i.visible_groups||[]).includes(g)?'checked':''}
+          onchange="toggleInvGroup('${i.id}',this,'${g}',${JSON.stringify(i.visible_groups||[])})"
+          style="width:14px;height:14px;accent-color:var(--red);cursor:pointer"
+          title="${g}그룹에 숨김"/>
+      </td>`).join('')}
     <td>
       <select class="filter-select" style="height:28px;font-size:11px" onchange="changeInvStatus('${i.id}', this.value)">
         <option ${i.status==='재고'?'selected':''}>재고</option>
