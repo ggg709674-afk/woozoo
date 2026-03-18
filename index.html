@@ -2528,13 +2528,12 @@ async function renderSupportMatrix() {
 
   const [{ data: models }, { data: plans }, { data: amounts }] = await Promise.all([
     sb.from('models').select('code').eq('is_active', true).order('code'),
-    sb.from('plans').select('id,name,monthly_fee,plan_group').eq('is_active', true).order('monthly_fee', {ascending: false}),
+    sb.from('plans').select('id,name,monthly_fee,plan_group').order('monthly_fee', {ascending: false}).order('name'),
     sb.from('support_amount').select('model_code,plan_id,amount')
   ]);
 
   if (!models?.length || !plans?.length) { wrap.innerHTML = '<div class="empty">데이터가 없어요</div>'; return; }
 
-  // 지원금 맵
   const amtMap = {};
   amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
 
@@ -2551,17 +2550,38 @@ async function renderSupportMatrix() {
     </thead>
     <tbody>
       ${models.map((m, mi) => `
-        <tr style="${mi%2===0?'background:var(--white)':'background:var(--border-light)'}">
+        <tr>
           <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700;color:var(--primary);font-family:monospace;position:sticky;left:0;z-index:1;box-shadow:2px 0 4px rgba(0,0,0,0.08)">${m.code}</td>
           ${plans.map(p => {
-            const amt = amtMap[`${m.code}||${p.id}`];
-            return `<td style="padding:7px 8px;border:1px solid var(--border);text-align:center;color:${amt?'var(--text)':'var(--text-hint)'};font-weight:${amt?'600':'400'}">${amt ? amt.toLocaleString() : '-'}</td>`;
+            const key = `${m.code}||${p.id}`;
+            const amt = amtMap[key];
+            return `<td style="padding:2px;border:1px solid var(--border);text-align:center">
+              <input type="number" value="${amt||''}" placeholder="-"
+                data-model="${m.code}" data-plan="${p.id}"
+                style="width:78px;height:28px;border:none;background:transparent;text-align:center;font-size:12px;font-weight:${amt?'600':'400'};color:${amt?'var(--text)':'var(--text-hint)'};outline:none;font-family:inherit;cursor:pointer"
+                onfocus="this.style.background='var(--primary-light)';this.style.color='var(--primary)'"
+                onblur="saveSupportCell(this)"
+                onkeydown="if(event.key==='Enter')this.blur()"/>
+            </td>`;
           }).join('')}
         </tr>`).join('')}
     </tbody>
   </table>`;
 
   wrap.innerHTML = html;
+}
+
+async function saveSupportCell(input) {
+  input.style.background = 'transparent';
+  const modelCode = input.getAttribute('data-model');
+  const planId = input.getAttribute('data-plan');
+  const amount = parseInt(input.value) || 0;
+  input.style.color = amount ? 'var(--text)' : 'var(--text-hint)';
+  input.style.fontWeight = amount ? '600' : '400';
+  await sb.from('support_amount').upsert(
+    { model_code: modelCode, plan_id: planId, amount },
+    { onConflict: 'model_code,plan_id' }
+  );
 }
 
 // ─── 공통지원금 ───
