@@ -520,6 +520,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
       <div class="nav-item" onclick="showPage('models')"><span class="nav-icon"><i data-lucide="smartphone"></i></span> 모델 관리</div>
       <div class="nav-item" onclick="showPage('plans')"><span class="nav-icon"><i data-lucide="receipt-text"></i></span> 요금제 관리</div>
       <div class="nav-item" onclick="showPage('members')"><span class="nav-icon"><i data-lucide="users"></i></span> 회원 관리</div>
+      <div class="nav-item" onclick="showPage('planmap')"><span class="nav-icon"><i data-lucide="link"></i></span> 요금제 매핑</div>
     </nav>
     <div class="sidebar-bottom">
       <div class="sidebar-user">
@@ -1225,6 +1226,63 @@ tr.drag-over { border-top:2px solid var(--primary); }
   </div>
 </div>
 
+<!-- 요금제 매핑 페이지 -->
+<div class="page" id="page-planmap">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div class="page-title">요금제 매핑</div>
+      <div class="page-sub">SKT 요금제 ↔ 내부 요금제 연결 관리</div>
+    </div>
+    <button class="btn btn-primary" onclick="openPlanMapModal()" style="display:flex;align-items:center;gap:6px">
+      <i data-lucide="plus" style="width:14px;height:14px"></i> 매핑 추가
+    </button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--border-light)">
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT 요금제명</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT ID</th>
+          <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">내부 요금제</th>
+          <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">상태</th>
+          <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">관리</th>
+        </tr>
+      </thead>
+      <tbody id="planmap-tbody">
+        <tr><td colspan="5" class="empty">매핑 데이터가 없습니다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 요금제 매핑 추가 모달 -->
+<div class="modal-overlay" id="planmap-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">요금제 매핑 추가</div>
+    <div class="modal-field">
+      <label class="modal-label">SKT 요금제명 <span style="color:var(--text-hint);font-weight:400">(SKT 홈페이지에 표시되는 이름)</span></label>
+      <input class="modal-input" id="pm-skt-name" placeholder="예) 5GX 플래티넘(넷플릭스)"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">SKT 요금제 ID <span style="color:var(--text-hint);font-weight:400">(URL의 prodId 값)</span></label>
+      <input class="modal-input" id="pm-skt-id" placeholder="예) NA00008489"/>
+      <div style="font-size:11px;color:var(--text-hint);margin-top:4px">
+        💡 shop.tworld.co.kr/notice 에서 요금제 선택 후 URL에서 prodId 확인
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">내부 요금제 연결</label>
+      <select class="modal-input" id="pm-plan-id" style="cursor:pointer">
+        <option value="">-- 요금제 선택 --</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal('planmap-modal')">취소</button>
+      <button class="btn btn-primary" onclick="savePlanMap()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1291,7 +1349,7 @@ function enterApp(email) {
   setTimeout(() => {
     lucide.createIcons();
     const hash = location.hash.replace('#', '');
-    const validPages = ['dashboard','stock-in','inventory','orders','partners','settlement','models','plans','support','members'];
+    const validPages = ['dashboard','stock-in','inventory','orders','partners','settlement','models','plans','support','members','planmap'];
     if (hash && validPages.includes(hash)) {
       showPage(hash);
     } else {
@@ -1351,7 +1409,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const items = document.querySelectorAll('.nav-item');
-  const map = {dashboard:0,settlement:1,'stock-in':2,inventory:3,orders:4,partners:5,support:6,models:7,plans:8,members:9};
+  const map = {dashboard:0,settlement:1,'stock-in':2,inventory:3,orders:4,partners:5,support:6,models:7,plans:8,members:9,planmap:10};
   if (map[name] !== undefined) items[map[name]].classList.add('active');
   location.hash = name;
   if (name === 'dashboard') loadDashboard();
@@ -1367,6 +1425,7 @@ function showPage(name) {
   if (name === 'support') loadSupport();
   if (name === 'members') loadMembers();
   if (name === 'settlement') loadSettlement();
+  if (name === 'planmap') loadPlanMap();
 }
 
 function toast(msg) {
@@ -2562,7 +2621,81 @@ async function saveSupportCell(input) {
   );
 }
 
-// ─── 공통지원금 ───
+// ─── 요금제 매핑 ───
+async function loadPlanMap() {
+  const { data: maps } = await sb.from('plan_mapping').select('*').order('created_at', { ascending: false });
+  const { data: plans } = await sb.from('plans').select('id,name').eq('is_active', true).order('sort_order');
+
+  const tbody = document.getElementById('planmap-tbody');
+  if (!maps || maps.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">매핑 데이터가 없습니다. 추가 버튼을 눌러 매핑을 등록하세요.</td></tr>';
+    return;
+  }
+
+  const planMap = {};
+  plans?.forEach(p => planMap[p.id] = p.name);
+
+  tbody.innerHTML = maps.map(m => `
+    <tr style="border-bottom:1px solid var(--border-light)">
+      <td style="padding:12px 16px;font-weight:600">${m.skt_plan_name}</td>
+      <td style="padding:12px 16px;font-family:monospace;color:var(--text-sub);font-size:12px">${m.skt_plan_id}</td>
+      <td style="padding:12px 16px">
+        <span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">
+          ${planMap[m.plan_id] || '❌ 미연결'}
+        </span>
+      </td>
+      <td style="padding:12px 16px;text-align:center">
+        <span style="background:${m.is_active ? 'var(--green-bg)' : 'var(--border-light)'};color:${m.is_active ? 'var(--green)' : 'var(--text-hint)'};padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">
+          ${m.is_active ? '활성' : '비활성'}
+        </span>
+      </td>
+      <td style="padding:12px 16px;text-align:center">
+        <button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px">삭제</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function openPlanMapModal() {
+  const { data: plans } = await sb.from('plans').select('id,name').eq('is_active', true).order('sort_order');
+  const sel = document.getElementById('pm-plan-id');
+  sel.innerHTML = '<option value="">-- 요금제 선택 --</option>';
+  plans?.forEach(p => {
+    sel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+  });
+  document.getElementById('pm-skt-name').value = '';
+  document.getElementById('pm-skt-id').value = '';
+  document.getElementById('planmap-modal').classList.add('active');
+}
+
+async function savePlanMap() {
+  const sktName = document.getElementById('pm-skt-name').value.trim();
+  const sktId   = document.getElementById('pm-skt-id').value.trim();
+  const planId  = document.getElementById('pm-plan-id').value;
+
+  if (!sktName || !sktId || !planId) { toast('모든 항목을 입력해주세요'); return; }
+
+  const { error } = await sb.from('plan_mapping').insert({
+    skt_plan_name: sktName,
+    skt_plan_id:   sktId,
+    plan_id:       planId,
+    is_active:     true,
+  });
+
+  if (error) { toast('저장 실패: ' + error.message); return; }
+  toast('✓ 매핑이 저장되었습니다');
+  closeModal('planmap-modal');
+  loadPlanMap();
+}
+
+async function deletePlanMap(id) {
+  if (!confirm('이 매핑을 삭제하시겠습니까?')) return;
+  await sb.from('plan_mapping').delete().eq('id', id);
+  toast('✓ 삭제되었습니다');
+  loadPlanMap();
+}
+
+
 let supportModels = [];
 let supportPlans = [];
 let supportData = {};
