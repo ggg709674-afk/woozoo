@@ -639,6 +639,12 @@ tr.drag-over { border-top:2px solid var(--primary); }
               <i data-lucide="search" style="width:14px;height:14px;position:absolute;left:10px;top:50%;transform:translateY(-50%);stroke:var(--text-hint);pointer-events:none"></i>
               <input class="search-input-bar" id="inv-search" placeholder="모델명, 일련번호, 색상 검색" oninput="loadInventory()" style="width:100%;padding-left:32px"/>
             </div>
+            <select class="filter-select" id="inv-filter-model" onchange="updateColorFilter();loadInventory()" style="min-width:120px">
+              <option value="">전체 모델</option>
+            </select>
+            <select class="filter-select" id="inv-filter-color" onchange="loadInventory()" style="min-width:100px">
+              <option value="">전체 색상</option>
+            </select>
             <input type="date" class="filter-select" id="inv-date-from" onchange="loadInventory()" style="min-width:130px"/>
             <span style="font-size:12px;color:var(--text-hint)">~</span>
             <input type="date" class="filter-select" id="inv-date-to" onchange="loadInventory()" style="min-width:130px"/>
@@ -1386,7 +1392,7 @@ function initDragSort() {
 }
 
 function invResetFilter() {
-  ['inv-date-from','inv-date-to','inv-filter-status','inv-search'].forEach(id => document.getElementById(id).value = '');
+  ['inv-date-from','inv-date-to','inv-filter-status','inv-search','inv-filter-model','inv-filter-color'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
   document.getElementById('isc-all').classList.add('active');
   loadInventory();
@@ -1413,12 +1419,28 @@ async function loadInventory() {
   const search = document.getElementById('inv-search').value.toLowerCase();
   const dateFrom = document.getElementById('inv-date-from').value;
   const dateTo = document.getElementById('inv-date-to').value;
+  const modelFilter = document.getElementById('inv-filter-model').value;
+  const colorFilter = document.getElementById('inv-filter-color').value;
   let q = sb.from('inventory').select('*').order('created_at', {ascending: false});
   if (status) q = q.eq('status', status);
+  if (modelFilter) q = q.eq('model', modelFilter);
+  if (colorFilter) q = q.eq('color', colorFilter);
   if (dateFrom) q = q.gte('created_at', dateFrom);
   if (dateTo) q = q.lte('created_at', dateTo + 'T23:59:59');
   const { data } = await q;
   const all = data || [];
+
+  // 모델 드롭다운 초기화 (처음 한 번만)
+  const modelSel = document.getElementById('inv-filter-model');
+  if (modelSel.options.length <= 1) {
+    const { data: allInvModels } = await sb.from('inventory').select('model').order('model');
+    const models = [...new Set(allInvModels?.map(i => i.model).filter(Boolean))];
+    models.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      modelSel.appendChild(opt);
+    });
+  }
 
   // 카드 숫자는 항상 전체 기준으로 별도 조회
   const { data: allData } = await sb.from('inventory').select('status');
@@ -2312,6 +2334,20 @@ async function saveSupport() {
 }
 </script>
 <script>
+async function updateColorFilter() {
+  const model = document.getElementById('inv-filter-model').value;
+  const colorSel = document.getElementById('inv-filter-color');
+  colorSel.innerHTML = '<option value="">전체 색상</option>';
+  if (!model) return;
+  const { data } = await sb.from('inventory').select('color').eq('model', model).order('color');
+  const colors = [...new Set(data?.map(i => i.color).filter(Boolean))];
+  colors.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    colorSel.appendChild(opt);
+  });
+}
+
 let plansCache = [];
 
 async function loadPlans() {
