@@ -1294,12 +1294,9 @@ function switchInvTab(tab) {
   document.getElementById('inv-panel-list').style.display = tab === 'list' ? '' : 'none';
   if (tab === 'summary') {
     loadInvSummary();
-    // 카드 active 상태 복원
-    const currentStatus = document.getElementById('inv-filter-status').value;
-    const map = {'':'isc-all','재고':'isc-stock','출고중':'isc-out','개통':'isc-done','숨김':'isc-hidden'};
+    document.getElementById('inv-filter-status').value = '';
     document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
-    const activeId = map[currentStatus] || 'isc-all';
-    document.getElementById(activeId).classList.add('active');
+    document.getElementById('isc-all').classList.add('active');
   }
   if (tab === 'list') loadInventory();
   setTimeout(() => lucide.createIcons(), 30);
