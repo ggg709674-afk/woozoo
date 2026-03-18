@@ -2505,15 +2505,15 @@ async function renderSupportMatrix() {
   const [{ data: models }, { data: plans }, { data: amounts }] = await Promise.all([
     sb.from('models').select('code').eq('is_active', true).order('code'),
     sb.from('plans').select('id,name,monthly_fee,plan_group').order('monthly_fee', {ascending: false}).order('name'),
-    sb.from('support_amount').select('model_code,plan_id,amount')
+    sb.from('support_amount').select('model_code,plan_id,amount').limit(10000)
   ]);
 
   if (!models?.length || !plans?.length) { wrap.innerHTML = '<div class="empty">데이터가 없어요</div>'; return; }
 
   const amtMap = {};
   amounts?.forEach(a => { amtMap[`${a.model_code}||${a.plan_id}`] = a.amount; });
-
-  let html = `<table style="border-collapse:collapse;font-size:12px;white-space:nowrap">
+  console.log('A566 5G슬림:', amtMap['A566||213c1398-f680-4ff4-a071-ece21e52ddbb']);
+  console.log('총 amount 수:', amounts?.length);
     <thead>
       <tr>
         <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;top:0;z-index:4;min-width:100px;box-shadow:2px 0 4px rgba(0,0,0,0.08);text-align:center">모델</th>
@@ -2683,7 +2683,7 @@ async function downloadSupportExcel() {
   const [{ data: models }, { data: plans }, { data: amounts }] = await Promise.all([
     sb.from('models').select('code').eq('is_active', true).order('code'),
     sb.from('plans').select('id,name,monthly_fee').order('monthly_fee', {ascending: false}).order('name'),
-    sb.from('support_amount').select('model_code,plan_id,amount')
+    sb.from('support_amount').select('model_code,plan_id,amount').limit(10000)
   ]);
 
   const amtMap = {};
