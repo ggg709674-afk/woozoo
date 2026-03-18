@@ -383,6 +383,8 @@ body.dark #support-matrix-wrap td[style*="position:sticky"],
 body.dark #support-matrix-wrap th[style*="position:sticky"] {
   background: #1A2030 !important;
 }
+#support-matrix-wrap td[style*="position:sticky"] { background: var(--white); }
+#support-matrix-wrap th[style*="position:sticky"] { background: var(--border-light); }
 body.dark .serial-ok { color: var(--green) !important; }
 body.dark .brand-tag.apple-tag { background: var(--border-light) !important; color: var(--text-sub) !important; }
 body.dark .brand-tag.samsung-tag { background: var(--primary-light) !important; color: var(--primary) !important; }
@@ -1123,7 +1125,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
       <!-- 테이블 탭 -->
       <div id="support-panel-table" style="display:none">
         <div class="card" style="padding:0;overflow:hidden">
-          <div style="overflow-x:auto">
+          <div style="overflow:auto;max-height:calc(100vh - 220px)">
             <div id="support-matrix-wrap" style="padding:40px;color:var(--text-hint);font-size:13px;text-align:center">
               로딩중...
             </div>
@@ -2540,9 +2542,9 @@ async function renderSupportMatrix() {
   let html = `<table style="border-collapse:collapse;font-size:12px;white-space:nowrap">
     <thead>
       <tr>
-        <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;z-index:3;min-width:100px;box-shadow:2px 0 4px rgba(0,0,0,0.08)">모델</th>
+        <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;color:var(--text);position:sticky;left:0;top:0;z-index:4;min-width:100px;box-shadow:2px 0 4px rgba(0,0,0,0.08)">모델</th>
         ${plans.map(p => `
-          <th style="padding:6px 8px;background:var(--border-light);border:1px solid var(--border);text-align:center;min-width:80px">
+          <th style="padding:6px 8px;background:var(--border-light);border:1px solid var(--border);text-align:center;min-width:80px;position:sticky;top:0;z-index:2">
             <div style="font-weight:700;color:var(--text);font-size:11px">${p.name}</div>
             <div style="font-size:10px;color:var(--text-hint);margin-top:2px">${p.monthly_fee ? p.monthly_fee.toLocaleString()+'원' : '-'}</div>
           </th>`).join('')}
