@@ -654,12 +654,21 @@ tr.drag-over { border-top:2px solid var(--primary); }
             </button>
           </div>
           <div class="table-wrap">
-            <table>
+            <table style="table-layout:fixed;width:100%">
               <thead>
                 <tr>
-                  <th>상태</th><th>입고일</th><th>경과</th><th>모델명</th>
-                  <th>일련번호</th><th>색상</th><th>재고위치</th><th>출고일</th>
-                  <th>출고점명</th><th>개통일</th><th>개통점</th><th>관리</th>
+                  <th style="width:80px">상태</th>
+                  <th style="width:70px">입고일</th>
+                  <th style="width:50px">경과</th>
+                  <th style="width:110px">모델명</th>
+                  <th style="width:120px">일련번호</th>
+                  <th style="width:80px">색상</th>
+                  <th style="width:70px">재고위치</th>
+                  <th style="width:70px">출고일</th>
+                  <th style="width:80px">출고점명</th>
+                  <th style="width:70px">개통일</th>
+                  <th style="width:80px">개통점</th>
+                  <th style="width:70px">관리</th>
                 </tr>
               </thead>
               <tbody id="inv-tbody"><tr><td colspan="12" class="loading">로딩중...</td></tr></tbody>
