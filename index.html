@@ -1293,13 +1293,8 @@ function switchInvTab(tab) {
   document.getElementById('inv-panel-summary').style.display = tab === 'summary' ? '' : 'none';
   document.getElementById('inv-panel-list').style.display = tab === 'list' ? '' : 'none';
   if (tab === 'summary') {
-    loadInvSummary();
     document.getElementById('inv-filter-status').value = '';
-    // loadInvSummary가 비동기라 약간 뒤에 active 적용
-    setTimeout(() => {
-      document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
-      document.getElementById('isc-all').classList.add('active');
-    }, 50);
+    loadInvSummary(); // 함수 내부에서 isc-all active 처리
   }
   if (tab === 'list') loadInventory();
   setTimeout(() => lucide.createIcons(), 30);
@@ -1366,11 +1361,8 @@ async function loadInvSummary() {
 
   initDragSort();
 
-  // 현황표 탭이면 전체 카드 active
-  if (document.getElementById('inv-panel-summary').style.display !== 'none') {
-    document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('isc-all').classList.add('active');
-  }
+  document.querySelectorAll('.inv-stat-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('isc-all').classList.add('active');
 }
 
 function initDragSort() {
