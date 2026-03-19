@@ -1,4 +1,4 @@
 fastapi
 uvicorn
 playwright
-greenlet
+supabase>=2.0.0
