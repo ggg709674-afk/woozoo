@@ -1177,10 +1177,13 @@ tr.drag-over { border-top:2px solid var(--primary); }
             <i data-lucide="upload" style="width:14px;height:14px"></i> 엑셀 업로드
             <input type="file" accept=".xlsx,.xls" style="display:none" onchange="uploadSupportExcel(this)"/>
           </label>
+          <!-- SKT 크롤링 버튼 숨김 (로컬 크롤러 사용) -->
+          <!--
           <button class="btn btn-primary" id="crawl-btn" onclick="runCrawl()" style="display:flex;align-items:center;gap:6px">
             <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> SKT 크롤링
           </button>
           <span id="crawl-status" style="font-size:12px;color:var(--text-hint)"></span>
+          -->
         </div>
       </div>
       <div id="support-panel-table">
