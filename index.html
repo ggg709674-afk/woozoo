@@ -941,12 +941,13 @@ tr.drag-over { border-top:2px solid var(--primary); }
             <thead>
               <tr>
                 <th>모델코드</th>
+                <th>제조사</th>
                 <th>색상1</th><th>색상2</th><th>색상3</th>
                 <th>색상4</th><th>색상5</th><th>색상6</th>
                 <th>단가</th><th>상태</th><th>관리</th>
               </tr>
             </thead>
-            <tbody id="model-tbody"><tr><td colspan="10" class="loading">로딩중...</td></tr></tbody>
+            <tbody id="model-tbody"><tr><td colspan="11" class="loading">로딩중...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1240,6 +1241,23 @@ tr.drag-over { border-top:2px solid var(--primary); }
     <div class="modal-field">
       <label class="modal-label">모델코드 *</label>
       <input class="modal-input" id="m-code" placeholder="예) S942_256" style="font-family:monospace;font-weight:700"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">제조사 *</label>
+      <div style="display:flex;gap:16px;padding:8px 0">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500">
+          <input type="radio" name="manufacturer" value="삼성" id="m-mfg-samsung" checked style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)"/>
+          <span>삼성</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500">
+          <input type="radio" name="manufacturer" value="애플" id="m-mfg-apple" style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)"/>
+          <span>애플</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500">
+          <input type="radio" name="manufacturer" value="기타" id="m-mfg-other" style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary)"/>
+          <span>기타</span>
+        </label>
+      </div>
     </div>
     <div class="modal-field">
       <label class="modal-label">단가 (원)</label>
@@ -1977,17 +1995,19 @@ let editModelId = null;
 async function loadModels() {
   const { data } = await sb.from('models').select('*').order('code');
   const tbody = document.getElementById('model-tbody');
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty">등록된 모델이 없어요</td></tr>'; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty">등록된 모델이 없어요</td></tr>'; return; }
   tbody.innerHTML = data.map(m => {
     const active = m.is_active ? '<span class="badge badge-done">활성</span>' : '<span class="badge badge-hidden">비활성</span>';
+    const mfr = m.manufacturer || '-';
     return `<tr>
       <td style="font-family:monospace;font-weight:700;color:var(--primary)">${m.code}</td>
+      <td style="font-weight:600">${mfr}</td>
       <td style="font-size:12px">${m.color1||'-'}</td><td style="font-size:12px">${m.color2||'-'}</td><td style="font-size:12px">${m.color3||'-'}</td>
       <td style="font-size:12px">${m.color4||'-'}</td><td style="font-size:12px">${m.color5||'-'}</td><td style="font-size:12px">${m.color6||'-'}</td>
       <td style="font-weight:700;color:var(--text)">${m.price ? m.price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">미입력</span>'}</td>
       <td>${active}</td>
       <td style="display:flex;gap:6px">
-        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}',${m.price||0})">수정</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModel('${m.id}','${m.code}','${m.color1||''}','${m.color2||''}','${m.color3||''}','${m.color4||''}','${m.color5||''}','${m.color6||''}',${m.price||0},'${m.manufacturer||''}')">수정</button>
         <button class="btn btn-danger btn-sm" onclick="toggleModel('${m.id}',${m.is_active})">${m.is_active?'비활성화':'활성화'}</button>
       </td>
     </tr>`;
@@ -1998,26 +2018,43 @@ function openAddModel() {
   editModelId = null;
   document.getElementById('model-modal-title').textContent = '모델 추가';
   ['m-code','m-c1','m-c2','m-c3','m-c4','m-c5','m-c6','m-price'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-mfg-samsung').checked = true;
   document.getElementById('m-code').readOnly = false;
   document.getElementById('model-modal').classList.add('open');
   setTimeout(() => document.getElementById('m-code').focus(), 100);
 }
 
-function openEditModel(id, code, c1, c2, c3, c4, c5, c6, price) {
+function openEditModel(id, code, c1, c2, c3, c4, c5, c6, price, manufacturer) {
   editModelId = id;
   document.getElementById('model-modal-title').textContent = '모델 수정';
   document.getElementById('m-code').value = code;
   document.getElementById('m-code').readOnly = true;
   ['m-c1','m-c2','m-c3','m-c4','m-c5','m-c6'].forEach((id,i) => document.getElementById(id).value = [c1,c2,c3,c4,c5,c6][i]);
   document.getElementById('m-price').value = price || '';
+  if (manufacturer === '삼성') document.getElementById('m-mfg-samsung').checked = true;
+  else if (manufacturer === '애플') document.getElementById('m-mfg-apple').checked = true;
+  else if (manufacturer === '기타') document.getElementById('m-mfg-other').checked = true;
+  else document.getElementById('m-mfg-samsung').checked = true;
   document.getElementById('model-modal').classList.add('open');
 }
 
 async function saveModel() {
   const code = document.getElementById('m-code').value.trim().toUpperCase();
   if (!code) { toast('모델코드를 입력해주세요'); return; }
+  const manufacturer = document.querySelector('input[name="manufacturer"]:checked')?.value;
+  if (!manufacturer) { toast('제조사를 선택해주세요'); return; }
   const price = parseInt(document.getElementById('m-price').value) || 0;
-  const payload = { code, price, color1:document.getElementById('m-c1').value.trim()||null, color2:document.getElementById('m-c2').value.trim()||null, color3:document.getElementById('m-c3').value.trim()||null, color4:document.getElementById('m-c4').value.trim()||null, color5:document.getElementById('m-c5').value.trim()||null, color6:document.getElementById('m-c6').value.trim()||null };
+  const payload = { 
+    code, 
+    manufacturer,
+    price, 
+    color1:document.getElementById('m-c1').value.trim()||null, 
+    color2:document.getElementById('m-c2').value.trim()||null, 
+    color3:document.getElementById('m-c3').value.trim()||null, 
+    color4:document.getElementById('m-c4').value.trim()||null, 
+    color5:document.getElementById('m-c5').value.trim()||null, 
+    color6:document.getElementById('m-c6').value.trim()||null 
+  };
   let error;
   if (editModelId) { ({error} = await sb.from('models').update(payload).eq('id', editModelId)); }
   else { ({error} = await sb.from('models').insert(payload)); }
