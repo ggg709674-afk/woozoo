@@ -1362,9 +1362,10 @@ tr.drag-over { border-top:2px solid var(--primary); }
 <div class="modal-overlay" id="modelmap-modal">
   <div class="modal" style="width:480px">
     <div class="modal-title">모델 매핑 추가</div>
+    <input type="hidden" id="mm-mapping-id"/>
     <div class="modal-field">
-      <label class="modal-label">SKT 모델명</label>
-      <input class="modal-input" id="mm-skt-name" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub)"/>
+      <label class="modal-label">SKT 모델명 *</label>
+      <input class="modal-input" id="mm-skt-name" placeholder="예) 갤럭시 S26 256G" style="font-weight:600"/>
     </div>
     <div class="modal-field">
       <label class="modal-label">우주커넥트 모델코드 *</label>
@@ -2868,7 +2869,12 @@ async function loadModelMap() {
     <tr style="border-bottom:1px solid var(--border-light)">
       <td style="padding:12px 16px;font-weight:600">${m.skt_model_name}</td>
       <td style="padding:12px 16px"><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:700;font-family:monospace">${m.model_code || '❌ 미연결'}</span></td>
-      <td style="padding:12px 16px;text-align:center"><button onclick="deleteModelMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button></td>
+      <td style="padding:12px 16px;text-align:center">
+        <div style="display:inline-flex;gap:6px">
+          <button onclick="openEditModelMap('${m.id}','${m.skt_model_name}','${m.model_code||''}')" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-weight:600">수정</button>
+          <button onclick="deleteModelMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button>
+        </div>
+      </td>
     </tr>`).join('');
 }
 
@@ -2878,18 +2884,44 @@ async function openModelMapModal(sktName) {
   sel.innerHTML = '<option value="">-- 모델 선택 --</option>';
   models?.forEach(m => { sel.innerHTML += `<option value="${m.code}">${m.code}</option>`; });
   document.getElementById('mm-skt-name').value = sktName || '';
+  document.getElementById('mm-mapping-id').value = ''; // 신규 추가
+  document.getElementById('modelmap-modal').querySelector('.modal-title').textContent = '모델 매핑 추가';
+  document.getElementById('modelmap-modal').classList.add('open');
+  lucide.createIcons();
+}
+
+async function openEditModelMap(id, sktName, modelCode) {
+  const { data: models } = await sb.from('models').select('code').eq('is_active', true).order('code');
+  const sel = document.getElementById('mm-model-code');
+  sel.innerHTML = '<option value="">-- 모델 선택 --</option>';
+  models?.forEach(m => { sel.innerHTML += `<option value="${m.code}" ${m.code === modelCode ? 'selected' : ''}>${m.code}</option>`; });
+  document.getElementById('mm-skt-name').value = sktName;
+  document.getElementById('mm-mapping-id').value = id; // 수정 모드
+  document.getElementById('modelmap-modal').querySelector('.modal-title').textContent = '모델 매핑 수정';
   document.getElementById('modelmap-modal').classList.add('open');
   lucide.createIcons();
 }
 
 async function saveModelMap() {
+  const mappingId = document.getElementById('mm-mapping-id').value;
   const sktName   = document.getElementById('mm-skt-name').value.trim();
   const modelCode = document.getElementById('mm-model-code').value;
-  if (!sktName) { toast('SKT 모델명을 선택해주세요'); return; }
+  if (!sktName) { toast('SKT 모델명을 입력해주세요'); return; }
   if (!modelCode) { toast('우주커넥트 모델코드를 선택해주세요'); return; }
-  const { error } = await sb.from('model_mapping').insert({ skt_model_name: sktName, model_code: modelCode, is_active: true });
+  
+  const payload = { skt_model_name: sktName, model_code: modelCode, is_active: true };
+  let error;
+  
+  if (mappingId) {
+    // 수정
+    ({ error } = await sb.from('model_mapping').update(payload).eq('id', mappingId));
+  } else {
+    // 신규
+    ({ error } = await sb.from('model_mapping').insert(payload));
+  }
+  
   if (error) { toast('저장 실패: ' + error.message); return; }
-  toast('✓ 매핑 저장 완료');
+  toast(mappingId ? '✓ 매핑 수정 완료' : '✓ 매핑 저장 완료');
   closeModal('modelmap-modal');
   loadModelMap();
 }
