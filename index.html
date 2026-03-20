@@ -1318,13 +1318,14 @@ tr.drag-over { border-top:2px solid var(--primary); }
 <div class="modal-overlay" id="planmap-modal">
   <div class="modal" style="width:480px">
     <div class="modal-title">요금제 매핑 추가</div>
+    <input type="hidden" id="pm-mapping-id"/>
     <div class="modal-field">
       <label class="modal-label">SKT 요금제명</label>
       <input class="modal-input" id="pm-skt-name" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub)"/>
     </div>
     <div class="modal-field">
-      <label class="modal-label">SKT 요금제 ID</label>
-      <input class="modal-input" id="pm-skt-id" readonly style="background:var(--border-light);cursor:default;color:var(--text-sub);font-family:monospace"/>
+      <label class="modal-label">SKT 요금제 ID *</label>
+      <input class="modal-input" id="pm-skt-id" placeholder="예) NA00008141" style="font-family:monospace;font-weight:600"/>
     </div>
     <div class="modal-field">
       <label class="modal-label">우주커넥트 요금제 *</label>
@@ -2721,7 +2722,12 @@ async function loadPlanMap() {
       <td style="padding:12px 16px;font-family:monospace;color:var(--text-sub);font-size:12px">${m.skt_plan_id}</td>
       <td style="padding:12px 16px;font-weight:700;color:var(--text)">${plan ? plan.fee.toLocaleString()+'원' : '-'}</td>
       <td style="padding:12px 16px"><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600">${plan?.name || '❌ 미연결'}</span></td>
-      <td style="padding:12px 16px;text-align:center"><button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button></td>
+      <td style="padding:12px 16px;text-align:center">
+        <div style="display:inline-flex;gap:6px">
+          <button onclick="openEditPlanMap('${m.id}','${m.skt_plan_id}','${m.skt_plan_name}','${m.plan_id||''}')" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;font-weight:600">수정</button>
+          <button onclick="deletePlanMap('${m.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;font-weight:600">삭제</button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -2733,19 +2739,46 @@ async function openPlanMapModal(sktId, sktName) {
   plans?.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.name} (${p.monthly_fee.toLocaleString()}원)</option>`; });
   document.getElementById('pm-skt-name').value = sktName || '';
   document.getElementById('pm-skt-id').value = sktId || '';
+  document.getElementById('pm-mapping-id').value = ''; // 신규 추가
+  document.getElementById('planmap-modal').querySelector('.modal-title').textContent = '요금제 매핑 추가';
+  document.getElementById('planmap-modal').classList.add('open');
+  lucide.createIcons();
+}
+
+async function openEditPlanMap(id, sktId, sktName, planId) {
+  const { data: plans } = await sb.from('plans').select('id,name,monthly_fee').eq('is_active', true).order('monthly_fee', { ascending: false });
+  const sel = document.getElementById('pm-plan-id');
+  sel.innerHTML = '<option value="">-- 요금제 선택 --</option>';
+  plans?.forEach(p => { sel.innerHTML += `<option value="${p.id}" ${p.id === planId ? 'selected' : ''}>${p.name} (${p.monthly_fee.toLocaleString()}원)</option>`; });
+  document.getElementById('pm-skt-name').value = sktName;
+  document.getElementById('pm-skt-id').value = sktId;
+  document.getElementById('pm-mapping-id').value = id; // 수정 모드
+  document.getElementById('planmap-modal').querySelector('.modal-title').textContent = '요금제 매핑 수정';
   document.getElementById('planmap-modal').classList.add('open');
   lucide.createIcons();
 }
 
 async function savePlanMap() {
+  const mappingId = document.getElementById('pm-mapping-id').value;
   const sktName = document.getElementById('pm-skt-name').value.trim();
   const sktId   = document.getElementById('pm-skt-id').value.trim();
   const planId  = document.getElementById('pm-plan-id').value;
   if (!sktName || !sktId) { toast('SKT 요금제를 선택해주세요'); return; }
   if (!planId) { toast('우주커넥트 요금제를 선택해주세요'); return; }
-  const { error } = await sb.from('plan_mapping').insert({ skt_plan_name: sktName, skt_plan_id: sktId, plan_id: planId, is_active: true });
+  
+  const payload = { skt_plan_name: sktName, skt_plan_id: sktId, plan_id: planId, is_active: true };
+  let error;
+  
+  if (mappingId) {
+    // 수정
+    ({ error } = await sb.from('plan_mapping').update(payload).eq('id', mappingId));
+  } else {
+    // 신규
+    ({ error } = await sb.from('plan_mapping').insert(payload));
+  }
+  
   if (error) { toast('저장 실패: ' + error.message); return; }
-  toast('✓ 매핑 저장 완료');
+  toast(mappingId ? '✓ 매핑 수정 완료' : '✓ 매핑 저장 완료');
   closeModal('planmap-modal');
   loadPlanMap();
 }
