@@ -1152,6 +1152,7 @@ tr.drag-over { border-top:2px solid var(--primary); }
           <thead>
             <tr style="background:var(--border-light)">
               <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">SKT 모델명</th>
+              <th style="padding:12px 16px;text-align:right;font-weight:600;color:var(--text-sub)">출고가</th>
               <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--text-sub)">우주커넥트 모델코드</th>
               <th style="padding:12px 16px;text-align:center;font-weight:600;color:var(--text-sub)">관리</th>
             </tr>
@@ -2864,10 +2865,11 @@ function showSktPlanList() {
 async function loadModelMap() {
   const { data: maps } = await sb.from('model_mapping').select('*').order('skt_model_name');
   const tbody = document.getElementById('modelmap-tbody');
-  if (!maps?.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty">매핑 데이터가 없습니다</td></tr>'; return; }
+  if (!maps?.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">매핑 데이터가 없습니다</td></tr>'; return; }
   tbody.innerHTML = maps.map(m => `
     <tr style="border-bottom:1px solid var(--border-light)">
       <td style="padding:12px 16px;font-weight:600">${m.skt_model_name}</td>
+      <td style="padding:12px 16px;text-align:right;font-weight:700;color:var(--text)">${m.price ? m.price.toLocaleString()+'원' : '<span style="color:var(--text-hint)">-</span>'}</td>
       <td style="padding:12px 16px"><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:700;font-family:monospace">${m.model_code || '❌ 미연결'}</span></td>
       <td style="padding:12px 16px;text-align:center">
         <div style="display:inline-flex;gap:6px">
@@ -2879,7 +2881,7 @@ async function loadModelMap() {
 }
 
 async function openModelMapModal(sktName) {
-  const { data: models } = await sb.from('models').select('code').order('code');
+  const { data: models } = await sb.from('models').select('code').eq('is_active', true).order('code');
   const sel = document.getElementById('mm-model-code');
   sel.innerHTML = '<option value="">-- 모델 선택 --</option>';
   models?.forEach(m => { sel.innerHTML += `<option value="${m.code}">${m.code}</option>`; });
@@ -2891,7 +2893,7 @@ async function openModelMapModal(sktName) {
 }
 
 async function openEditModelMap(id, sktName, modelCode) {
-  const { data: models } = await sb.from('models').select('code').order('code');
+  const { data: models } = await sb.from('models').select('code').eq('is_active', true).order('code');
   const sel = document.getElementById('mm-model-code');
   sel.innerHTML = '<option value="">-- 모델 선택 --</option>';
   models?.forEach(m => { sel.innerHTML += `<option value="${m.code}" ${m.code === modelCode ? 'selected' : ''}>${m.code}</option>`; });
